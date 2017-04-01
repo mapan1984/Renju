@@ -1,15 +1,15 @@
-// 
+// 棋盘每个位置的可选状态
 const EMPTY = 0;
 const BLACK = 1;
-const WRITE = 2;
+const WRITE = -1;
 
-// 博弈树探索深度
-const LIMIT_DEPTH = 2
 // 棋盘大小
 const BOARD_SIZE = 15
 // 棋盘格大小为30*30的方格
 const GRID_SIZE = 30 
 
+// 博弈树探索深度
+let LIMIT_DEPTH = 2
 
 // 初始化棋盘中落子情况
 let chessBoard = [];
@@ -69,9 +69,6 @@ let oneStep = function(i, j, color) {
     context.fill();
 };
 
-oneStep(1, 1, BLACK)
-oneStep(1, 2, WRITE)
-
 // 鼠标绑定落黑子
 chess.onclick = function(e) {
     let x = e.offsetX;
@@ -80,7 +77,229 @@ chess.onclick = function(e) {
     let j = Math.floor(y / 30);
     if (chessBoard[i][j] === EMPTY) {
         oneStep(i, j, BLACK);
+        [i, j] = nextPlace(chessBoard, BLACK);
+        oneStep(i, j, WRITE);
     }
 };
 
+/*
+ * 棋型表示
+ * 用一个6位数表示棋型，从高位到低位分别表示
+ * 连五，活四，眠四，活三，活二/眠三，活一/眠二, 眠一
+ */
+const VALUE = {
+    LIVE_ONE:   100,
+    LIVE_TWO:   10000,
+    LIVE_THREE: 10000000,
+    LIVE_FOUR:  10000000000,
+    LIVE_FIVE:  +Infinity,
+    SLEEP_ONE:   10,
+    SLEEP_TWO:   1000,
+    SLEEP_THREE: 1000000,
+    SLEEP_FOUR:  10000000000,
+    SLEEP_FIVE:  +Infinity,
+    BLOCKED_ONE:   1,
+    BLOCKED_TWO:   10,
+    BLOCKED_THREE: 100,
+    BLOCKED_FOUR:  1000,
+    BLOCKED_FIVE:  +Infinity,
+}
+
+// 根据连字数和封堵数
+// 给出一个评价值
+function getValue(cnt, blk)
+{
+    if (blk === 0) { // 活棋
+        switch (cnt) {
+            case 1: return VALUE.LIVE_ONE;
+            case 2: return VALUE.LIVE_TWO;
+            case 3: return VALUE.LIVE_THREE;
+            case 4: return VALUE.LIVE_FOUR;
+            default: return VALUE.LIVE_FIVE;
+        }
+    } else if (blk === 1) { // 眠棋
+        switch (cnt) {
+            case 1: return VALUE.SLEEP_ONE;
+            case 2: return VALUE.SLEEP_TWO;
+            case 3: return VALUE.SLEEP_THREE;
+            case 4: return VALUE.SLEEP_FOUR;
+            default: return  VALUE.SLEEP_FIVE;
+        }
+    } else { // 死棋
+        switch (cnt) {
+            case 1: return VALUE.BLOCKED_ONE;
+            case 2: return VALUE.BLOCKED_TWO;
+            case 3: return VALUE.BLOCKED_THREE;
+            case 4: return VALUE.BLOCKED_FOUR;
+            default: return  VALUE.BLOCKED_FIVE;
+        }
+    }
+}
+
+// 根据一行棋的情况
+// 给出评值
+function evaluateLine(line, color){
+    let value = 0;   // 评估值
+    let cnt = 0;     // 连子数
+    let blk = 0;     // 封闭数
+
+    const MY = color;   // 己方
+    const OT = -color;  // 对方
+
+    // 从左向右扫描
+    let lineLength = line.length;
+    for (let i = 0; i < lineLength; i++) {
+        if (line[i] === color) {// 找到第一个己方的棋子
+            // 还原计数
+            cnt = 1;
+
+            // 看左侧是否封闭
+            if (i === 0 || line[i-1] === OT) { 
+                // 如果棋子在棋盘的边界,或者上一个棋子为他方棋子
+                blk = 1;
+            } else {
+                blk = 0;
+            }
+
+            // 计算连子数
+            for (i = i+1; i < lineLength && line[i] == MY; i++) {
+                cnt++;
+            }
+
+            // 看右侧是否封闭
+            if (line[i] === OT || i === lineLength) {
+                blk++;
+            }
+
+            // 计算评估值
+            value += getValue(cnt, blk);
+        }
+    }
+
+    return value;
+}
+
+// 根据棋盘状况
+// 给出棋子颜色为color的评值
+function evaluateState(chessBoard, color){
+    // 保存四个方向每一行的棋子情况
+    let row = [];
+    let col = [];
+    for (let i=0; i<BOARD_SIZE; i++) {
+        row[i] = [];
+        col[i] = [];
+    }
+
+    let leftSlash = [];
+    let rightSlash = [];
+    for (let i=0; i<BOARD_SIZE*2-1; i++) {
+        leftSlash[i] = [];
+        rightSlash[i] = [];
+    }
+
+    for (let i = 0; i < BOARD_SIZE; ++i){
+        for (let j = 0; j < BOARD_SIZE; ++j){
+            row[i].push(chessBoard[i][j]);
+            col[j].push(chessBoard[i][j]);
+            leftSlash[j-i+14].push(chessBoard[i][j]);
+            rightSlash[i+j].push(chessBoard[i][j]);
+        }
+    }
+
+    // 评值
+    let value = 0;
+
+    // 累加行状态评估值
+    for (let i=0; i<BOARD_SIZE; i++) {
+        value += evaluateLine(row[i], color);
+        value += evaluateLine(col[i], color);
+    }
+    for (let i=0; i<BOARD_SIZE*2-1; i++) {
+        value += evaluateLine(leftSlash[i], color);
+        value += evaluateLine(rightSlash[i], color);
+    }
+
+    return value;
+}
+
+// 根据棋盘情况
+// 返回可以落子的位置
+function possiblePlaces(chessBoard) {
+    let places = [];
+    for (let i = 0; i < BOARD_SIZE; i++) {
+        for (let j = 0; j < BOARD_SIZE; j++) {
+            if (chessBoard[i][j] === EMPTY) {
+                places.push([i,j]);
+            }
+        }
+    }
+    return places;
+}
+
+// 根据棋盘、落子位置、颜色、深度
+// 返回min或max
+function minmax(chessBoard, place, color, searchDepth) {
+    // 此层是取极大值还是极小值
+    let isMin = searchDepth % 2 === 1 ? true : false;
+
+    // 初始化
+    let min = +Infinity;
+    let max = -Infinity;
+
+    // 落子
+    let [i, j] = place;
+    if (isMin) {  // min层，落己方的子到达
+        chessBoard[i][j] = color;
+    } else {  // max层，落对方的子到达
+        chessBoard[i][j] = -color;
+    }
+
+    if (searchDepth >= LIMIT_DEPTH) {  // 如果到探索的叶子节点，直接返回估值
+        // console.log(searchDepth, place)
+        return evaluateState(chessBoard, color) - evaluateState(chessBoard, -color);
+    } else {  // 否则继续向下探索，估值由下层节点确定
+        for (let place of possiblePlaces(chessBoard)) {
+            // console.log(searchDepth, place)
+            weight = minmax(chessBoard, place, color, searchDepth+1);
+
+            // 恢复状态
+            let [i, j] = place;
+            chessBoard[i][j] = EMPTY;
+
+            // 更新min与max
+            if (min > weight) {
+                min = weight;
+            }
+            if (max < weight) {
+                max = weight;
+            }
+        }
+        if (isMin) {  // 如果当前层是min，返回min
+            return min;
+        } else {      // 否则返回max
+            return max;
+        }
+    }
+}
+
+// 根据棋盘情况
+// 返回下一个color棋应该下的位置
+function nextPlace(chessBoard, color) {
+    // 在所有可能值中取最大的值
+    let max = -Infinity;
+    let maxPlace = null;
+    for (let place of possiblePlaces(chessBoard)) {
+        weight = minmax(chessBoard, place, color, 1);
+
+        // 恢复棋盘
+        let [i, j] = place;
+        chessBoard[i][j] = EMPTY;
+
+        if (max < weight) {
+            max = weight;
+            maxPlace = place;
+        }
+    }
+    return maxPlace;
+}
 
