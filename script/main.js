@@ -6,7 +6,7 @@ const WRITE = -1;
 // 棋盘大小
 const BOARD_SIZE = 15
 // 棋盘格大小为30*30的方格
-const GRID_SIZE = 30 
+const GRID_SIZE = 30
 
 // 博弈树探索深度
 let LIMIT_DEPTH = 2
@@ -69,16 +69,32 @@ let oneStep = function(i, j, color) {
     context.fill();
 };
 
+let over = false;
 // 鼠标绑定落黑子
 chess.onclick = function(e) {
+    if (over) {
+        return null;
+    }
     let x = e.offsetX;
     let y = e.offsetY;
     let i = Math.floor(x / 30);
     let j = Math.floor(y / 30);
     if (chessBoard[i][j] === EMPTY) {
         oneStep(i, j, BLACK);
+    }
+
+    if (evaluateState(chessBoard, BLACK) === +Infinity) {
+        over = true;
+        alert("black win");
+    }
+    if (!over) {
         [i, j] = nextPlace(chessBoard, BLACK);
+        console.log(i, j);
         oneStep(i, j, WRITE);
+    }
+    if (evaluateState(chessBoard, WRITE) === +Infinity) {
+        over = true;
+        alert("write win");
     }
 };
 
@@ -154,7 +170,7 @@ function evaluateLine(line, color){
             cnt = 1;
 
             // 看左侧是否封闭
-            if (i === 0 || line[i-1] === OT) { 
+            if (i === 0 || line[i-1] === OT) {
                 // 如果棋子在棋盘的边界,或者上一个棋子为他方棋子
                 blk = 1;
             } else {
@@ -207,19 +223,24 @@ function evaluateState(chessBoard, color){
     }
 
     // 评值
-    let value = 0;
+    let colorValue = 0;
+    let notColorValue = 0;
 
     // 累加行状态评估值
     for (let i=0; i<BOARD_SIZE; i++) {
-        value += evaluateLine(row[i], color);
-        value += evaluateLine(col[i], color);
+        colorValue += evaluateLine(row[i], color);
+        notColorValue += evaluateLine(row[i], -color);
+        colorValue += evaluateLine(col[i], color);
+        notColorValue += evaluateLine(col[i], -color);
     }
     for (let i=0; i<BOARD_SIZE*2-1; i++) {
-        value += evaluateLine(leftSlash[i], color);
-        value += evaluateLine(rightSlash[i], color);
+        colorValue += evaluateLine(leftSlash[i], color);
+        notColorValue += evaluateLine(leftSlash[i], -color);
+        colorValue += evaluateLine(rightSlash[i], color);
+        notColorValue += evaluateLine(rightSlash[i], -color);
     }
 
-    return value;
+    return colorValue-notColorValue;
 }
 
 // 根据棋盘情况
@@ -256,7 +277,7 @@ function minmax(chessBoard, place, color, searchDepth) {
 
     if (searchDepth >= LIMIT_DEPTH) {  // 如果到探索的叶子节点，直接返回估值
         // console.log(searchDepth, place)
-        return evaluateState(chessBoard, color) - evaluateState(chessBoard, -color);
+        return evaluateState(chessBoard, color);
     } else {  // 否则继续向下探索，估值由下层节点确定
         for (let place of possiblePlaces(chessBoard)) {
             // console.log(searchDepth, place)
@@ -282,9 +303,97 @@ function minmax(chessBoard, place, color, searchDepth) {
     }
 }
 
+function alphabeta(chessBoard, place, alpha, beta, color, searchDepth) {
+    // 此层是取极大值还是极小值
+    let isMin = searchDepth % 2 === 1 ? true : false;
+    let isMax = !isMin;
+
+    // 初始化
+    let min = +Infinity;
+    let max = -Infinity;
+
+    // 落子
+    let [i, j] = place;
+    if (isMin) {  // min层，落己方的子到达
+        chessBoard[i][j] = color;
+    } else {  // max层，落对方的子到达
+        chessBoard[i][j] = -color;
+    }
+
+    //oldChessBoard = copy(chessBoard);
+
+    if (searchDepth >= LIMIT_DEPTH) {  // 到探索的叶子节点，直接返回估值
+        // console.log(searchDepth, place)
+        return evaluateState(chessBoard, color);
+    } else if (isMax) {  // 否则继续向下探索，估值由下层节点确定
+        let max = -Infinity;
+        for (let place of possiblePlaces(chessBoard)) {
+            // console.log(searchDepth, place)
+            weight = alphabeta(chessBoard, place, min, max, color, searchDepth+1);
+
+            // 恢复状态
+            let [i, j] = place;
+            chessBoard[i][j] = EMPTY;
+
+            max = max > weight ? max : weight;
+            alpha = max > alpha ? max : alpha;
+
+            // beta cut-off
+            if (beta <= alpha) {
+                break;
+            }
+
+        }
+        return max;
+    } else {
+        let min = +Infinity;
+        for (let place of possiblePlaces(chessBoard)) {
+            // console.log(searchDepth, place)
+            weight = alphabeta(chessBoard, place, min, max, color, searchDepth+1);
+
+            // 恢复状态
+            let [i, j] = place;
+            chessBoard[i][j] = EMPTY;
+
+            min = min < weight ? min : weight;
+            beta = min < beta ? min : beta;
+
+            // alpha cut-off
+            if (beta <= alpha) {
+                break;
+            }
+
+        }
+        return min;
+    }
+}
+
 // 根据棋盘情况
 // 返回下一个color棋应该下的位置
 function nextPlace(chessBoard, color) {
+    // 在所有可能值中取最大的值
+    let max = -Infinity;
+    let min = +Infinity;
+    let maxPlace = null;
+    for (let place of possiblePlaces(chessBoard)) {
+
+        weight = alphabeta(chessBoard, place, max, min, color, 1);
+
+        // 恢复
+        let [i, j] = place;
+        chessBoard[i][j] = EMPTY;
+
+        if (max < weight) {
+            max = weight;
+            maxPlace = place;
+        }
+    }
+    return maxPlace;
+}
+
+// 根据棋盘情况
+// 返回下一个color棋应该下的位置
+function minMaxNextPlace(chessBoard, color) {
     // 在所有可能值中取最大的值
     let max = -Infinity;
     let maxPlace = null;
