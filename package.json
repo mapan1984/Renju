@@ -5,7 +5,8 @@
   "main": "./script/es2015/ui.js",
   "scripts": {
     "start": "webpack",
-    "open": "webpack-dev-server --progress --colors"
+    "open": "webpack-dev-server --progress --colors",
+    "build": "./build.sh"
   },
   "repository": {
     "type": "git",
