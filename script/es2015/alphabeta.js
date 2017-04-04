@@ -15,110 +15,98 @@ function possiblePlaces(chessBoard) {
     return places;
 }
 
-// 根据棋盘、落子位置、当前深度
-// 返回颜色为color的棋子在此层的估值(min值或max值)
-function minmax(chessBoard, place, color, searchDepth) {
-    // 此层是取极大值还是极小值
-    let isMin = searchDepth % 2 === 1 ? true : false;
-
-    // 初始化
-    let min = +Infinity;
-    let max = -Infinity;
-
-    // 落子
-    let [i, j] = place;
-    if (isMin) {  // min层，落己方的子到达
-        chessBoard[i][j] = color;
-    } else {  // max层，落对方的子到达
-        chessBoard[i][j] = -color;
-    }
-
-    if (searchDepth >= LIMIT_DEPTH) {  // 如果到探索的叶子节点，直接返回估值
-        // console.log(searchDepth, place)
-        return evaluateState(chessBoard, color);
-    } else {  // 否则继续向下探索，估值由下层节点确定
-        for (let place of possiblePlaces(chessBoard)) {
-            // console.log(searchDepth, place)
-            let weight = minmax(chessBoard, place, color, searchDepth+1);
-
-            // 恢复状态
-            let [i, j] = place;
-            chessBoard[i][j] = EMPTY;
-
-            // 更新min与max
-            if (min > weight) {
-                min = weight;
-            }
-            if (max < weight) {
-                max = weight;
-            }
-        }
-        if (isMin) {  // 如果当前层是min，返回min
-            return min;
-        } else {      // 否则返回max
-            return max;
-        }
-    }
-}
-
 // 根据棋盘、落子位置、当前深度，alpha，beta
 // 返回颜色为color的棋子在此层的估值(min值或max值)
-function alphabeta(chessBoard, place, alpha, beta, color, searchDepth) {
+function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
     // 此层是取极大值还是极小值
     let isMin = searchDepth % 2 === 1 ? true : false;
+    let isTop = searchDepth === 0 ? true : false;
     let isMax = !isMin;
-
-    // 初始化
-    let min = +Infinity;
-    let max = -Infinity;
-
-    // 落子
-    let [i, j] = place;
-    if (isMin) {  // min层，落己方的子到达
-        chessBoard[i][j] = color;
-    } else {  // max层，落对方的子到达
-        chessBoard[i][j] = -color;
-    }
-
-    //oldChessBoard = copy(chessBoard);
 
     if (searchDepth >= LIMIT_DEPTH) {  // 到探索的叶子节点，直接返回估值
         // console.log(searchDepth, place)
         return evaluateState(chessBoard, color);
     } else if (isMax) {  // 否则继续向下探索，估值由下层节点确定
-        let max = -Infinity;
-        for (let place of possiblePlaces(chessBoard)) {
-            // console.log(searchDepth, place)
-            let weight = alphabeta(chessBoard, place, min, max, color, searchDepth+1);
+        if (isTop) {
+            let max = -Infinity;
+            let maxPlace = null;
+            for (let place of possiblePlaces(chessBoard)) {
+                // max层，落已方的子到达下一层
+                let [i, j] = place;
+                chessBoard[i][j] = color;
 
-            // 恢复棋盘上一个状态
-            let [i, j] = place;
-            chessBoard[i][j] = EMPTY;
+                // console.log(searchDepth, place)
+                let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
 
-            max = max > weight ? max : weight;
-            alpha = max > alpha ? max : alpha;
+                // 恢复棋盘上一个状态
+                chessBoard[i][j] = EMPTY;
 
-            // beta cut-off
-            if (beta <= alpha) {
-                break;
+                // max层取最大值
+                if (max < weight) {
+                    max = weight;
+                    maxPlace = place;
+                }
+                if (alpha < max) {
+                    alpha = max;
+                    maxPlace = place;
+                }
+
+                // beta cut-off: 上一层的beta大于这层的alpha，则不用在继续搜索
+                if (beta <= alpha) {
+                    break;
+                }
             }
+            return maxPlace;
+        } else {
+            let max = -Infinity;
+            for (let place of possiblePlaces(chessBoard)) {
+                // max层，落已方的子到达下一层
+                let [i, j] = place;
+                chessBoard[i][j] = color;
 
+                // console.log(searchDepth, place)
+                let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
+
+                // 恢复棋盘上一个状态
+                chessBoard[i][j] = EMPTY;
+
+                // max层取最大值
+                if (max < weight) {
+                    max = weight;
+                }
+                if (alpha < max) {
+                    alpha = max;
+                }
+
+                // beta cut-off: 上一层的beta大于这层的alpha，则不用在继续搜索
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return max;
         }
-        return max;
     } else {
         let min = +Infinity;
         for (let place of possiblePlaces(chessBoard)) {
+            // min层，落对方的子到达下一层
+            let [i, j] = place;
+            chessBoard[i][j] = -color;
+
             // console.log(searchDepth, place)
-            let weight = alphabeta(chessBoard, place, min, max, color, searchDepth+1);
+            let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
 
             // 恢复状态
-            let [i, j] = place;
             chessBoard[i][j] = EMPTY;
 
-            min = min < weight ? min : weight;
-            beta = min < beta ? min : beta;
+            // min层取最小值
+            if (min > weight) {
+                min = weight;
+            }
+            if (beta > min) {
+                beta = min;
+            }
 
-            // alpha cut-off
+            // alpha cut-off: 上一层的alpha已经大于这层的beta，则不用继续搜索
             if (beta <= alpha) {
                 break;
             }
@@ -128,52 +116,13 @@ function alphabeta(chessBoard, place, alpha, beta, color, searchDepth) {
     }
 }
 
-// [min-max]
-// 根据棋盘情况
-// 返回下一个color棋应该下的位置
-function minMaxNextPlace(chessBoard, color) {
-    // 在所有可能值中取最大的值
-    let max = -Infinity;
-    let maxPlace = null;
-    for (let place of possiblePlaces(chessBoard)) {
-        let weight = minmax(chessBoard, place, color, 1);
-
-        // 恢复棋盘
-        let [i, j] = place;
-        chessBoard[i][j] = EMPTY;
-
-        if (max < weight) {
-            max = weight;
-            maxPlace = place;
-        }
-    }
-    return maxPlace;
-}
-
 // [alpha-beta]
 // 根据棋盘情况
 // 返回下一个color棋应该下的位置
 function nextPlace(chessBoard, color) {
-    // 在所有可能值中取最大的值
-    let max = -Infinity;
-    let min = +Infinity;
-    let maxPlace = null;
-    
-    // 搜索使color棋估值最大的落子位置
-    for (let place of possiblePlaces(chessBoard)) {
-
-        let weight = alphabeta(chessBoard, place, max, min, color, 1);
-
-        // 恢复
-        let [i, j] = place;
-        chessBoard[i][j] = EMPTY;
-
-        if (max < weight) {
-            max = weight;
-            maxPlace = place;
-        }
-    }
-    return maxPlace;
+    let alpha = -Infinity;
+    let beta = +Infinity;
+    return alphabeta(chessBoard, alpha, beta, color, 0);
 }
 
 export {nextPlace};
