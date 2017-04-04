@@ -1,414 +1,98 @@
-// 棋盘每个位置的可选状态
-const EMPTY = 0;
-const BLACK = 1;
-const WRITE = -1;
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
 
-// 棋盘大小
-const BOARD_SIZE = 15
-// 棋盘格大小为30*30的方格
-const GRID_SIZE = 30
+"use strict";
+eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n// 棋盘每个位置的可选状态\nvar EMPTY = 0;\nvar BLACK = 1;\nvar WRITE = -1;\n\n// 棋盘大小为15*15行列\nvar BOARD_SIZE = 15;\n// 棋盘格大小为30*30的方格\nvar GRID_SIZE = 30;\n\n// 博弈树探索深度\nvar LIMIT_DEPTH = 2;\n\nexports.EMPTY = EMPTY;\nexports.BLACK = BLACK;\nexports.WRITE = WRITE;\nexports.BOARD_SIZE = BOARD_SIZE;\nexports.GRID_SIZE = GRID_SIZE;\nexports.LIMIT_DEPTH = LIMIT_DEPTH;//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9zY3JpcHQvZXMyMDE1L2dudW0uanM/OTU3ZCJdLCJuYW1lcyI6WyJFTVBUWSIsIkJMQUNLIiwiV1JJVEUiLCJCT0FSRF9TSVpFIiwiR1JJRF9TSVpFIiwiTElNSVRfREVQVEgiXSwibWFwcGluZ3MiOiI7Ozs7O0FBQUE7QUFDQSxJQUFNQSxRQUFRLENBQWQ7QUFDQSxJQUFNQyxRQUFRLENBQWQ7QUFDQSxJQUFNQyxRQUFRLENBQUMsQ0FBZjs7QUFFQTtBQUNBLElBQU1DLGFBQWEsRUFBbkI7QUFDQTtBQUNBLElBQU1DLFlBQVksRUFBbEI7O0FBRUE7QUFDQSxJQUFJQyxjQUFjLENBQWxCOztRQUVRTCxLLEdBQUFBLEs7UUFBT0MsSyxHQUFBQSxLO1FBQU9DLEssR0FBQUEsSztRQUFPQyxVLEdBQUFBLFU7UUFBWUMsUyxHQUFBQSxTO1FBQVdDLFcsR0FBQUEsVyIsImZpbGUiOiIwLmpzIiwic291cmNlc0NvbnRlbnQiOlsiLy8g5qOL55uY5q+P5Liq5L2N572u55qE5Y+v6YCJ54q25oCBXG5jb25zdCBFTVBUWSA9IDA7XG5jb25zdCBCTEFDSyA9IDE7XG5jb25zdCBXUklURSA9IC0xO1xuXG4vLyDmo4vnm5jlpKflsI/kuLoxNSoxNeihjOWIl1xuY29uc3QgQk9BUkRfU0laRSA9IDE1O1xuLy8g5qOL55uY5qC85aSn5bCP5Li6MzAqMzDnmoTmlrnmoLxcbmNvbnN0IEdSSURfU0laRSA9IDMwO1xuXG4vLyDljZrlvIjmoJHmjqLntKLmt7HluqZcbmxldCBMSU1JVF9ERVBUSCA9IDI7XG5cbmV4cG9ydCB7RU1QVFksIEJMQUNLLCBXUklURSwgQk9BUkRfU0laRSwgR1JJRF9TSVpFLCBMSU1JVF9ERVBUSH07XG5cblxuXG5cbi8vIFdFQlBBQ0sgRk9PVEVSIC8vXG4vLyAuL3NjcmlwdC9lczIwMTUvZ251bS5qcyJdLCJzb3VyY2VSb290IjoiIn0=");
 
-// 博弈树探索深度
-let LIMIT_DEPTH = 2
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
 
-// 初始化棋盘中落子情况
-let chessBoard = [];
-for (let i=0; i<BOARD_SIZE; i++) {
-    chessBoard[i] = [];
-    for (let j=0; j<BOARD_SIZE; j++) {
-        chessBoard[i][j] = EMPTY;
-    }
-}
+"use strict";
+eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n    value: true\n});\nexports.evaluateState = undefined;\n\nvar _gnum = __webpack_require__(0);\n\n// 不同棋型的价值\nvar VALUE = {\n    LIVE_ONE: 10,\n    LIVE_TWO: 500,\n    LIVE_THREE: 10000,\n    LIVE_FOUR: 1000000,\n    LIVE_FIVE: +Infinity,\n    SLEEP_ONE: 5,\n    SLEEP_TWO: 100,\n    SLEEP_THREE: 500,\n    SLEEP_FOUR: 5000,\n    SLEEP_FIVE: +Infinity,\n    BLOCKED_ONE: 1,\n    BLOCKED_TWO: 10,\n    BLOCKED_THREE: 200,\n    BLOCKED_FOUR: 500,\n    BLOCKED_FIVE: +Infinity\n};\n\n// 根据连子数和封堵数\n// 给出一个评价值\nfunction getValue(cnt, blk) {\n    if (blk === 0) {\n        // 活棋\n        switch (cnt) {\n            case 1:\n                return VALUE.LIVE_ONE;\n            case 2:\n                return VALUE.LIVE_TWO;\n            case 3:\n                return VALUE.LIVE_THREE;\n            case 4:\n                return VALUE.LIVE_FOUR;\n            default:\n                return VALUE.LIVE_FIVE;\n        }\n    } else if (blk === 1) {\n        // 眠棋\n        switch (cnt) {\n            case 1:\n                return VALUE.SLEEP_ONE;\n            case 2:\n                return VALUE.SLEEP_TWO;\n            case 3:\n                return VALUE.SLEEP_THREE;\n            case 4:\n                return VALUE.SLEEP_FOUR;\n            default:\n                return VALUE.SLEEP_FIVE;\n        }\n    } else {\n        // 死棋\n        switch (cnt) {\n            case 1:\n                return VALUE.BLOCKED_ONE;\n            case 2:\n                return VALUE.BLOCKED_TWO;\n            case 3:\n                return VALUE.BLOCKED_THREE;\n            case 4:\n                return VALUE.BLOCKED_FOUR;\n            default:\n                return VALUE.BLOCKED_FIVE;\n        }\n    }\n}\n\n// 根据一行棋的情况\n// 给出color棋在这一行的评值\nfunction evaluateLine(line, color) {\n    var value = 0; // 评估值\n    var cnt = 0; // 连子数\n    var blk = 0; // 封闭数\n\n    var MY = color; // 己方\n    var OT = -color; // 对方\n\n    // 从左向右扫描\n    var lineLength = line.length;\n    for (var i = 0; i < lineLength; i++) {\n        if (line[i] === color) {\n            // 找到第一个己方的棋子\n            // 还原计数\n            cnt = 1;\n\n            // 检查左侧是否封闭\n            if (i === 0 || line[i - 1] === OT) {\n                // 如果棋子在棋盘的边界，或者上一个棋子为他方棋子\n                blk = 1;\n            } else {\n                blk = 0;\n            }\n\n            // 计算连子数\n            for (i = i + 1; i < lineLength && line[i] == MY; i++) {\n                cnt++;\n            }\n\n            // 看右侧是否封闭\n            if (line[i] === OT || i === lineLength) {\n                blk++;\n            }\n\n            // 计算评估值\n            value += getValue(cnt, blk);\n        }\n    }\n\n    return value;\n}\n\n// 根据棋盘chessBoard状况\n// 给出棋子颜色为color在chessBoard的评值\nfunction evaluateState(chessBoard, color) {\n    // 保存四个方向每一行的棋子情况\n    var row = [];\n    var col = [];\n    for (var i = 0; i < _gnum.BOARD_SIZE; i++) {\n        row[i] = [];\n        col[i] = [];\n    }\n    var leftSlash = [];\n    var rightSlash = [];\n    for (var _i = 0; _i < _gnum.BOARD_SIZE * 2 - 1; _i++) {\n        leftSlash[_i] = [];\n        rightSlash[_i] = [];\n    }\n\n    // 存储chessBoard四个方向的棋子\n    for (var _i2 = 0; _i2 < _gnum.BOARD_SIZE; ++_i2) {\n        for (var j = 0; j < _gnum.BOARD_SIZE; ++j) {\n            row[_i2].push(chessBoard[_i2][j]);\n            col[j].push(chessBoard[_i2][j]);\n            leftSlash[j - _i2 + 14].push(chessBoard[_i2][j]);\n            rightSlash[_i2 + j].push(chessBoard[_i2][j]);\n        }\n    }\n\n    // 评值\n    var colorValue = 0;\n    var notColorValue = 0;\n\n    // 累加行状态评估值\n    for (var _i3 = 0; _i3 < _gnum.BOARD_SIZE; _i3++) {\n        colorValue += evaluateLine(row[_i3], color);\n        notColorValue += evaluateLine(row[_i3], -color);\n        colorValue += evaluateLine(col[_i3], color);\n        notColorValue += evaluateLine(col[_i3], -color);\n    }\n    for (var _i4 = 0; _i4 < _gnum.BOARD_SIZE * 2 - 1; _i4++) {\n        colorValue += evaluateLine(leftSlash[_i4], color);\n        notColorValue += evaluateLine(leftSlash[_i4], -color);\n        colorValue += evaluateLine(rightSlash[_i4], color);\n        notColorValue += evaluateLine(rightSlash[_i4], -color);\n    }\n    return colorValue - 1.1 * notColorValue;\n}\n\nexports.evaluateState = evaluateState;//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9zY3JpcHQvZXMyMDE1L2VzdGltYXRlLmpzPzRiMDgiXSwibmFtZXMiOlsiVkFMVUUiLCJMSVZFX09ORSIsIkxJVkVfVFdPIiwiTElWRV9USFJFRSIsIkxJVkVfRk9VUiIsIkxJVkVfRklWRSIsIkluZmluaXR5IiwiU0xFRVBfT05FIiwiU0xFRVBfVFdPIiwiU0xFRVBfVEhSRUUiLCJTTEVFUF9GT1VSIiwiU0xFRVBfRklWRSIsIkJMT0NLRURfT05FIiwiQkxPQ0tFRF9UV08iLCJCTE9DS0VEX1RIUkVFIiwiQkxPQ0tFRF9GT1VSIiwiQkxPQ0tFRF9GSVZFIiwiZ2V0VmFsdWUiLCJjbnQiLCJibGsiLCJldmFsdWF0ZUxpbmUiLCJsaW5lIiwiY29sb3IiLCJ2YWx1ZSIsIk1ZIiwiT1QiLCJsaW5lTGVuZ3RoIiwibGVuZ3RoIiwiaSIsImV2YWx1YXRlU3RhdGUiLCJjaGVzc0JvYXJkIiwicm93IiwiY29sIiwibGVmdFNsYXNoIiwicmlnaHRTbGFzaCIsImoiLCJwdXNoIiwiY29sb3JWYWx1ZSIsIm5vdENvbG9yVmFsdWUiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7QUFBQTs7QUFFQTtBQUNBLElBQU1BLFFBQVE7QUFDVkMsY0FBWSxFQURGO0FBRVZDLGNBQVksR0FGRjtBQUdWQyxnQkFBWSxLQUhGO0FBSVZDLGVBQVksT0FKRjtBQUtWQyxlQUFZLENBQUNDLFFBTEg7QUFNVkMsZUFBYSxDQU5IO0FBT1ZDLGVBQWEsR0FQSDtBQVFWQyxpQkFBYSxHQVJIO0FBU1ZDLGdCQUFhLElBVEg7QUFVVkMsZ0JBQWEsQ0FBQ0wsUUFWSjtBQVdWTSxpQkFBZSxDQVhMO0FBWVZDLGlCQUFlLEVBWkw7QUFhVkMsbUJBQWUsR0FiTDtBQWNWQyxrQkFBZSxHQWRMO0FBZVZDLGtCQUFlLENBQUNWO0FBZk4sQ0FBZDs7QUFrQkE7QUFDQTtBQUNBLFNBQVNXLFFBQVQsQ0FBa0JDLEdBQWxCLEVBQXVCQyxHQUF2QixFQUEyQjtBQUN2QixRQUFJQSxRQUFRLENBQVos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SU0sTUFBRSxDQUFYLEVBQWNBLE1BQUUsbUJBQVcsQ0FBWCxHQUFhLENBQTdCLEVBQWdDQSxLQUFoQyxFQUFxQztBQUNqQ1Msc0JBQWNqQixhQUFhYSxVQUFVTCxHQUFWLENBQWIsRUFBMkJOLEtBQTNCLENBQWQ7QUFDQWdCLHlCQUFpQmxCLGFBQWFhLFVBQVVMLEdBQVYsQ0FBYixFQUEyQixDQUFDTixLQUE1QixDQUFqQjtBQUNBZSxzQkFBY2pCLGFBQWFjLFdBQVdOLEdBQVgsQ0FBYixFQUE0Qk4sS0FBNUIsQ0FBZDtBQUNBZ0IseUJBQWlCbEIsYUFBYWMsV0FBV04sR0FBWCxDQUFiLEVBQTRCLENBQUNOLEtBQTdCLENBQWpCO0FBQ0g7QUFDRCxXQUFPZSxhQUFXLE1BQUlDLGFBQXRCO0FBQ0g7O1FBRU9ULGEsR0FBQUEsYSIsImZpbGUiOiIxLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHtCT0FSRF9TSVpFfSBmcm9tICcuL2dudW0uanMnO1xuXG4vLyDkuI3lkIzmo4vlnovnmoTku7flgLxcbmNvbnN0IFZBTFVFID0ge1xuICAgIExJVkVfT05FOiAgIDEwLFxuICAgIExJVkVfVFdPOiAgIDUwMCxcbiAgICBMSVZFX1RIUkVFOiAxMDAwMCxcbiAgICBMSVZFX0ZPVVI6ICAxMDAwMDAwLFxuICAgIExJVkVfRklWRTogICtJbmZpbml0eSxcbiAgICBTTEVFUF9PTkU6ICAgNSxcbiAgICBTTEVFUF9UV086ICAgMTAwLFxuICAgIFNMRUVQX1RIUkVFOiA1MDAsXG4gICAgU0xFRVBfRk9VUjogIDUwMDAsXG4gICAgU0xFRVBfRklWRTogICtJbmZpbml0eSxcbiAgICBCTE9DS0VEX09ORTogICAxLFxuICAgIEJMT0NLRURfVFdPOiAgIDEwLFxuICAgIEJMT0NLRURfVEhSRUU6IDIwMCxcbiAgICBCTE9DS0VEX0ZPVVI6ICA1MDAsXG4gICAgQkxPQ0tFRF9GSVZFOiAgK0luZmluaXR5LFxufTtcblxuLy8g5qC55o2u6L+e5a2Q5pWw5ZKM5bCB5aC15pWwXG4vLyDnu5nlh7rkuIDkuKror4Tku7flgLxcbmZ1bmN0aW9uIGdldFZhbHVlKGNudCwgYmxrKXtcbiAgICBpZiAoYmxrID09PSAwKSB7IC8vIOa0u+aji1xuICAgICAgICBzd2l0Y2ggKGNudCkge1xuICAgICAgICAgICAgY2FzZSAxOiByZXR1cm4gVkFMVUUuTElWRV9PTkU7XG4gICAgICAgICAgICBjYXNlIDI6IHJldHVybiBWQUxVRS5MSVZFX1RXTztcbiAgICAgICAgICAgIGNhc2UgMzogcmV0dXJuIFZBTFVFLkxJVkVfVEhSRUU7XG4gICAgICAgICAgICBjYXNlIDQ6IHJldHVybiBWQUxVRS5MSVZFX0ZPVVI7XG4gICAgICAgICAgICBkZWZhdWx0OiByZXR1cm4gVkFMVUUuTElWRV9GSVZFO1xuICAgICAgICB9XG4gICAgfSBlbHNlIGlmIChibGsgPT09IDEpIHsgLy8g55yg5qOLXG4gICAgICAgIHN3aXRjaCAoY250KSB7XG4gICAgICAgICAgICBjYXNlIDE6IHJldHVybiBWQUxVRS5TTEVFUF9PTkU7XG4gICAgICAgICAgICBjYXNlIDI6IHJldHVybiBWQUxVRS5TTEVFUF9UV087XG4gICAgICAgICAgICBjYXNlIDM6IHJldHVybiBWQUxVRS5TTEVFUF9USFJFRTtcbiAgICAgICAgICAgIGNhc2UgNDogcmV0dXJuIFZBTFVFLlNMRUVQX0ZPVVI7XG4gICAgICAgICAgICBkZWZhdWx0OiByZXR1cm4gIFZBTFVFLlNMRUVQX0ZJVkU7XG4gICAgICAgIH1cbiAgICB9IGVsc2UgeyAvLyDmrbvmo4tcbiAgICAgICAgc3dpdGNoIChjbnQpIHtcbiAgICAgICAgICAgIGNhc2UgMTogcmV0dXJuIFZBTFVFLkJMT0NLRURfT05FO1xuICAgICAgICAgICAgY2FzZSAyOiByZXR1cm4gVkFMVUUuQkxPQ0tFRF9UV087XG4gICAgICAgICAgICBjYXNlIDM6IHJldHVybiBWQUxVRS5CTE9DS0VEX1RIUkVFO1xuICAgICAgICAgICAgY2FzZSA0OiByZXR1cm4gVkFMVUUuQkxPQ0tFRF9GT1VSO1xuICAgICAgICAgICAgZGVmYXVsdDogcmV0dXJuICBWQUxVRS5CTE9DS0VEX0ZJVkU7XG4gICAgICAgIH1cbiAgICB9XG59XG5cbi8vIOagueaNruS4gOihjOaji+eahOaDheWGtVxuLy8g57uZ5Ye6Y29sb3Lmo4vlnKjov5nkuIDooYznmoTor4TlgLxcbmZ1bmN0aW9uIGV2YWx1YXRlTGluZShsaW5lLCBjb2xvcil7XG4gICAgbGV0IHZhbHVlID0gMDsgICAvLyDor4TkvLDlgLxcbiAgICBsZXQgY250ID0gMDsgICAgIC8vIOi/nuWtkOaVsFxuICAgIGxldCBibGsgPSAwOyAgICAgLy8g5bCB6Zet5pWwXG5cbiAgICBjb25zdCBNWSA9IGNvbG9yOyAgIC8vIOW3seaWuVxuICAgIGNvbnN0IE9UID0gLWNvbG9yOyAgLy8g5a+55pa5XG5cbiAgICAvLyDku47lt6blkJHlj7Pmiavmj49cbiAgICBsZXQgbGluZUxlbmd0aCA9IGxpbmUubGVuZ3RoO1xuICAgIGZvciAobGV0IGkgPSAwOyBpIDwgbGluZUxlbmd0aDsgaSsrKSB7XG4gICAgICAgIGlmIChsaW5lW2ldID09PSBjb2xvcikgeyAgLy8g5om+5Yiw56ys5LiA5Liq5bex5pa555qE5qOL5a2QXG4gICAgICAgICAgICAvLyDov5jljp/orqHmlbBcbiAgICAgICAgICAgIGNudCA9IDE7XG5cbiAgICAgICAgICAgIC8vIOajgOafpeW3puS+p+aYr+WQpuWwgemXrVxuICAgICAgICAgICAgaWYgKGkgPT09IDAgfHwgbGluZVtpLTFdID09PSBPVCkge1xuICAgICAgICAgICAgICAgIC8vIOWmguaenOaji+WtkOWcqOaji+ebmOeahOi+ueeVjO+8jOaIluiAheS4iuS4gOS4quaji+WtkOS4uuS7luaWueaji+WtkFxuICAgICAgICAgICAgICAgIGJsayA9IDE7XG4gICAgICAgICAgICB9IGVsc2Uge1xuICAgICAgICAgICAgICAgIGJsayA9IDA7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIC8vIOiuoeeul+i/nuWtkOaVsFxuICAgICAgICAgICAgZm9yIChpID0gaSsxOyBpIDwgbGluZUxlbmd0aCAmJiBsaW5lW2ldID09IE1ZOyBpKyspIHtcbiAgICAgICAgICAgICAgICBjbnQrKztcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgLy8g55yL5Y+z5L6n5piv5ZCm5bCB6ZetXG4gICAgICAgICAgICBpZiAobGluZVtpXSA9PT0gT1QgfHwgaSA9PT0gbGluZUxlbmd0aCkge1xuICAgICAgICAgICAgICAgIGJsaysrO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICAvLyDorqHnrpfor4TkvLDlgLxcbiAgICAgICAgICAgIHZhbHVlICs9IGdldFZhbHVlKGNudCwgYmxrKTtcbiAgICAgICAgfVxuICAgIH1cblxuICAgIHJldHVybiB2YWx1ZTtcbn1cblxuLy8g5qC55o2u5qOL55uYY2hlc3NCb2FyZOeKtuWGtVxuLy8g57uZ5Ye65qOL5a2Q6aKc6Imy5Li6Y29sb3LlnKhjaGVzc0JvYXJk55qE6K+E5YC8XG5mdW5jdGlvbiBldmFsdWF0ZVN0YXRlKGNoZXNzQm9hcmQsIGNvbG9yKXtcbiAgICAvLyDkv53lrZjlm5vkuKrmlrnlkJHmr4/kuIDooYznmoTmo4vlrZDmg4XlhrVcbiAgICBsZXQgcm93ID0gW107XG4gICAgbGV0IGNvbCA9IFtdO1xuICAgIGZvciAobGV0IGk9MDsgaTxCT0FSRF9TSVpFOyBpKyspIHtcbiAgICAgICAgcm93W2ldID0gW107XG4gICAgICAgIGNvbFtpXSA9IFtdO1xuICAgIH1cbiAgICBsZXQgbGVmdFNsYXNoID0gW107XG4gICAgbGV0IHJpZ2h0U2xhc2ggPSBbXTtcbiAgICBmb3IgKGxldCBpPTA7IGk8Qk9BUkRfU0laRSoyLTE7IGkrKykge1xuICAgICAgICBsZWZ0U2xhc2hbaV0gPSBbXTtcbiAgICAgICAgcmlnaHRTbGFzaFtpXSA9IFtdO1xuICAgIH1cblxuICAgIC8vIOWtmOWCqGNoZXNzQm9hcmTlm5vkuKrmlrnlkJHnmoTmo4vlrZBcbiAgICBmb3IgKGxldCBpID0gMDsgaSA8IEJPQVJEX1NJWkU7ICsraSl7XG4gICAgICAgIGZvciAobGV0IGogPSAwOyBqIDwgQk9BUkRfU0laRTsgKytqKXtcbiAgICAgICAgICAgIHJvd1tpXS5wdXNoKGNoZXNzQm9hcmRbaV1bal0pO1xuICAgICAgICAgICAgY29sW2pdLnB1c2goY2hlc3NCb2FyZFtpXVtqXSk7XG4gICAgICAgICAgICBsZWZ0U2xhc2hbai1pKzE0XS5wdXNoKGNoZXNzQm9hcmRbaV1bal0pO1xuICAgICAgICAgICAgcmlnaHRTbGFzaFtpK2pdLnB1c2goY2hlc3NCb2FyZFtpXVtqXSk7XG4gICAgICAgIH1cbiAgICB9XG5cbiAgICAvLyDor4TlgLxcbiAgICBsZXQgY29sb3JWYWx1ZSA9IDA7XG4gICAgbGV0IG5vdENvbG9yVmFsdWUgPSAwO1xuXG4gICAgLy8g57Sv5Yqg6KGM54q25oCB6K+E5Lyw5YC8XG4gICAgZm9yIChsZXQgaT0wOyBpPEJPQVJEX1NJWkU7IGkrKykge1xuICAgICAgICBjb2xvclZhbHVlICs9IGV2YWx1YXRlTGluZShyb3dbaV0sIGNvbG9yKTtcbiAgICAgICAgbm90Q29sb3JWYWx1ZSArPSBldmFsdWF0ZUxpbmUocm93W2ldLCAtY29sb3IpO1xuICAgICAgICBjb2xvclZhbHVlICs9IGV2YWx1YXRlTGluZShjb2xbaV0sIGNvbG9yKTtcbiAgICAgICAgbm90Q29sb3JWYWx1ZSArPSBldmFsdWF0ZUxpbmUoY29sW2ldLCAtY29sb3IpO1xuICAgIH1cbiAgICBmb3IgKGxldCBpPTA7IGk8Qk9BUkRfU0laRSoyLTE7IGkrKykge1xuICAgICAgICBjb2xvclZhbHVlICs9IGV2YWx1YXRlTGluZShsZWZ0U2xhc2hbaV0sIGNvbG9yKTtcbiAgICAgICAgbm90Q29sb3JWYWx1ZSArPSBldmFsdWF0ZUxpbmUobGVmdFNsYXNoW2ldLCAtY29sb3IpO1xuICAgICAgICBjb2xvclZhbHVlICs9IGV2YWx1YXRlTGluZShyaWdodFNsYXNoW2ldLCBjb2xvcik7XG4gICAgICAgIG5vdENvbG9yVmFsdWUgKz0gZXZhbHVhdGVMaW5lKHJpZ2h0U2xhc2hbaV0sIC1jb2xvcik7XG4gICAgfVxuICAgIHJldHVybiBjb2xvclZhbHVlLTEuMSpub3RDb2xvclZhbHVlO1xufVxuXG5leHBvcnQge2V2YWx1YXRlU3RhdGV9O1xuXG5cblxuXG4vLyBXRUJQQUNLIEZPT1RFUiAvL1xuLy8gLi9zY3JpcHQvZXMyMDE1L2VzdGltYXRlLmpzIl0sInNvdXJjZVJvb3QiOiIifQ==");
 
-// 帮助方法，展示棋盘
-let showChessBoard = function(){
-    for (let i=0; i<BOARD_SIZE; i++) {
-        line = [];
-        for (let j=0; j<BOARD_SIZE; j++) {
-            line.push(chessBoard[j][i]);
-        }
-        console.log(line.join('|'));
-    }
-}
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
 
-// 绘制棋盘
-let chess = document.getElementById('chess');
-let context = chess.getContext('2d');
-context.strokeStyle = "BFBFBF";
+"use strict";
+eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n    value: true\n});\nexports.nextPlace = undefined;\n\nvar _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i[\"return\"]) _i[\"return\"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError(\"Invalid attempt to destructure non-iterable instance\"); } }; }();\n\nvar _gnum = __webpack_require__(0);\n\nvar _estimate = __webpack_require__(1);\n\n// 根据棋盘情况\n// 返回可以落子的位置\nfunction possiblePlaces(chessBoard) {\n    var places = [];\n    for (var i = 0; i < _gnum.BOARD_SIZE; i++) {\n        for (var j = 0; j < _gnum.BOARD_SIZE; j++) {\n            if (chessBoard[i][j] === _gnum.EMPTY) {\n                places.push([i, j]);\n            }\n        }\n    }\n    return places;\n}\n\n// 根据棋盘、落子位置、当前深度\n// 返回颜色为color的棋子在此层的估值(min值或max值)\nfunction minmax(chessBoard, place, color, searchDepth) {\n    // 此层是取极大值还是极小值\n    var isMin = searchDepth % 2 === 1 ? true : false;\n\n    // 初始化\n    var min = +Infinity;\n    var max = -Infinity;\n\n    // 落子\n\n    var _place = _slicedToArray(place, 2),\n        i = _place[0],\n        j = _place[1];\n\n    if (isMin) {\n        // min层，落己方的子到达\n        chessBoard[i][j] = color;\n    } else {\n        // max层，落对方的子到达\n        chessBoard[i][j] = -color;\n    }\n\n    if (searchDepth >= _gnum.LIMIT_DEPTH) {\n        // 如果到探索的叶子节点，直接返回估值\n        // console.log(searchDepth, place)\n        return (0, _estimate.evaluateState)(chessBoard, color);\n    } else {\n        // 否则继续向下探索，估值由下层节点确定\n        var _iteratorNormalCompletion = true;\n        var _didIteratorError = false;\n        var _iteratorError = undefined;\n\n        try {\n            for (var _iterator = possiblePlaces(chessBoard)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {\n                var _place2 = _step.value;\n\n                // console.log(searchDepth, place)\n                var weight = minmax(chessBoard, _place2, color, searchDepth + 1);\n\n                // 恢复状态\n\n                var _place3 = _slicedToArray(_place2, 2),\n                    _i = _place3[0],\n                    _j = _place3[1];\n\n                chessBoard[_i][_j] = _gnum.EMPTY;\n\n                // 更新min与max\n                if (min > weight) {\n                    min = weight;\n                }\n                if (max < weight) {\n                    max = weight;\n                }\n            }\n        } catch (err) {\n            _didIteratorError = true;\n            _iteratorError = err;\n        } finally {\n            try {\n                if (!_iteratorNormalCompletion && _iterator.return) {\n                    _iterator.return();\n                }\n            } finally {\n                if (_didIteratorError) {\n                    throw _iteratorError;\n                }\n            }\n        }\n\n        if (isMin) {\n            // 如果当前层是min，返回min\n            return min;\n        } else {\n            // 否则返回max\n            return max;\n        }\n    }\n}\n\n// 根据棋盘、落子位置、当前深度，alpha，beta\n// 返回颜色为color的棋子在此层的估值(min值或max值)\nfunction alphabeta(chessBoard, place, alpha, beta, color, searchDepth) {\n    // 此层是取极大值还是极小值\n    var isMin = searchDepth % 2 === 1 ? true : false;\n    var isMax = !isMin;\n\n    // 初始化\n    var min = +Infinity;\n    var max = -Infinity;\n\n    // 落子\n\n    var _place4 = _slicedToArray(place, 2),\n        i = _place4[0],\n        j = _place4[1];\n\n    if (isMin) {\n        // min层，落己方的子到达\n        chessBoard[i][j] = color;\n    } else {\n        // max层，落对方的子到达\n        chessBoard[i][j] = -color;\n    }\n\n    //oldChessBoard = copy(chessBoard);\n\n    if (searchDepth >= _gnum.LIMIT_DEPTH) {\n        // 到探索的叶子节点，直接返回估值\n        // console.log(searchDepth, place)\n        return (0, _estimate.evaluateState)(chessBoard, color);\n    } else if (isMax) {\n        // 否则继续向下探索，估值由下层节点确定\n        var _max = -Infinity;\n        var _iteratorNormalCompletion2 = true;\n        var _didIteratorError2 = false;\n        var _iteratorError2 = undefined;\n\n        try {\n            for (var _iterator2 = possiblePlaces(chessBoard)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {\n                var _place5 = _step2.value;\n\n                // console.log(searchDepth, place)\n                var weight = alphabeta(chessBoard, _place5, min, _max, color, searchDepth + 1);\n\n                // 恢复棋盘上一个状态\n\n                var _place6 = _slicedToArray(_place5, 2),\n                    _i2 = _place6[0],\n                    _j2 = _place6[1];\n\n                chessBoard[_i2][_j2] = _gnum.EMPTY;\n\n                _max = _max > weight ? _max : weight;\n                alpha = _max > alpha ? _max : alpha;\n\n                // beta cut-off\n                if (beta <= alpha) {\n                    break;\n                }\n            }\n        } catch (err) {\n            _didIteratorError2 = true;\n            _iteratorError2 = err;\n        } finally {\n            try {\n                if (!_iteratorNormalCompletion2 && _iterator2.return) {\n                    _iterator2.return();\n                }\n            } finally {\n                if (_didIteratorError2) {\n                    throw _iteratorError2;\n                }\n            }\n        }\n\n        return _max;\n    } else {\n        var _min = +Infinity;\n        var _iteratorNormalCompletion3 = true;\n        var _didIteratorError3 = false;\n        var _iteratorError3 = undefined;\n\n        try {\n            for (var _iterator3 = possiblePlaces(chessBoard)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {\n                var _place7 = _step3.value;\n\n                // console.log(searchDepth, place)\n                var _weight = alphabeta(chessBoard, _place7, _min, max, color, searchDepth + 1);\n\n                // 恢复状态\n\n                var _place8 = _slicedToArray(_place7, 2),\n                    _i3 = _place8[0],\n                    _j3 = _place8[1];\n\n                chessBoard[_i3][_j3] = _gnum.EMPTY;\n\n                _min = _min < _weight ? _min : _weight;\n                beta = _min < beta ? _min : beta;\n\n                // alpha cut-off\n                if (beta <= alpha) {\n                    break;\n                }\n            }\n        } catch (err) {\n            _didIteratorError3 = true;\n            _iteratorError3 = err;\n        } finally {\n            try {\n                if (!_iteratorNormalCompletion3 && _iterator3.return) {\n                    _iterator3.return();\n                }\n            } finally {\n                if (_didIteratorError3) {\n                    throw _iteratorError3;\n                }\n            }\n        }\n\n        return _min;\n    }\n}\n\n// [min-max]\n// 根据棋盘情况\n// 返回下一个color棋应该下的位置\nfunction minMaxNextPlace(chessBoard, color) {\n    // 在所有可能值中取最大的值\n    var max = -Infinity;\n    var maxPlace = null;\n    var _iteratorNormalCompletion4 = true;\n    var _didIteratorError4 = false;\n    var _iteratorError4 = undefined;\n\n    try {\n        for (var _iterator4 = possiblePlaces(chessBoard)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {\n            var place = _step4.value;\n\n            var weight = minmax(chessBoard, place, color, 1);\n\n            // 恢复棋盘\n\n            var _place9 = _slicedToArray(place, 2),\n                i = _place9[0],\n                j = _place9[1];\n\n            chessBoard[i][j] = _gnum.EMPTY;\n\n            if (max < weight) {\n                max = weight;\n                maxPlace = place;\n            }\n        }\n    } catch (err) {\n        _didIteratorError4 = true;\n        _iteratorError4 = err;\n    } finally {\n        try {\n            if (!_iteratorNormalCompletion4 && _iterator4.return) {\n                _iterator4.return();\n            }\n        } finally {\n            if (_didIteratorError4) {\n                throw _iteratorError4;\n            }\n        }\n    }\n\n    return maxPlace;\n}\n\n// [alpha-beta]\n// 根据棋盘情况\n// 返回下一个color棋应该下的位置\nfunction nextPlace(chessBoard, color) {\n    // 在所有可能值中取最大的值\n    var max = -Infinity;\n    var min = +Infinity;\n    var maxPlace = null;\n\n    // 搜索使color棋估值最大的落子位置\n    var _iteratorNormalCompletion5 = true;\n    var _didIteratorError5 = false;\n    var _iteratorError5 = undefined;\n\n    try {\n        for (var _iterator5 = possiblePlaces(chessBoard)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {\n            var place = _step5.value;\n\n\n            var weight = alphabeta(chessBoard, place, max, min, color, 1);\n\n            // 恢复\n\n            var _place10 = _slicedToArray(place, 2),\n                i = _place10[0],\n                j = _place10[1];\n\n            chessBoard[i][j] = _gnum.EMPTY;\n\n            if (max < weight) {\n                max = weight;\n                maxPlace = place;\n            }\n        }\n    } catch (err) {\n        _didIteratorError5 = true;\n        _iteratorError5 = err;\n    } finally {\n        try {\n            if (!_iteratorNormalCompletion5 && _iterator5.return) {\n                _iterator5.return();\n            }\n        } finally {\n            if (_didIteratorError5) {\n                throw _iteratorError5;\n            }\n        }\n    }\n\n    return maxPlace;\n}\n\nexports.nextPlace = nextPlace;//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9zY3JpcHQvZXMyMDE1L2FscGhhYmV0YS5qcz83ODAzIl0sIm5hbWVzIjpbInBvc3NpYmxlUGxhY2VzIiwiY2hlc3NCb2FyZCIsInBsYWNlcyIsImkiLCJqIiwicHVzaCIsIm1pbm1heCIsInBsYWNlIiwiY29sb3IiLCJzZWFyY2hEZXB0aCIsImlzTWluIiwibWluIiwiSW5maW5pdHkiLCJtYXgiLCJ3ZWlnaHQiLCJhbHBoYWJldGEiLCJhbHBoYSIsImJldGEiLCJpc01heCIsIm1pbk1heE5leHRQbGFjZSIsIm1heFBsYWNlIiwibmV4dFBsYWNlIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7QUFBQTs7QUFDQTs7QUFFQTtBQUNBO0FBQ0EsU0FBU0EsY0FBVCxDQUF3QkMsVUFBeEIsRUFBb0M7QUFDaEMsUUFBSUMsU0FBUyxFQUFiO0FBQ0EsU0FBSyxJQUFJQyxJQUFJLENBQWIsRUFBZ0JBLG9CQUFoQixFQUFnQ0EsR0FBaEMsRUFBcUM7QUFDakMsYUFBSyxJQUFJQyxJQUFJLENBQWIsRUFBZ0JBLG9CQUFoQixFQUFnQ0EsR0FBaEMsRUFBcUM7QUFDakMsZ0JBQUlILFdBQVdFLENBQVgsRUFBY0MsQ0FBZCxpQkFBSixFQUFnQztBQUM1QkYsdUJBQU9HLElBQVAsQ0FBWSxDQUFDRixDQUFELEVBQUdDLENBQUgsQ0FBWjtBQUNIO0FBQ0o7QUFDSjtBQUNELFdBQU9GLE1BQVA7QUFDSDs7QUFFRDtBQUNBO0FBQ0EsU0FBU0ksTUFBVCxDQUFnQkwsVUFBaEIsRUFBNEJNLEtBQTVCLEVBQW1DQyxLQUFuQyxFQUEwQ0MsV0FBMUMsRUFBdUQ7QUFDbkQ7QUFDQSxRQUFJQyxRQUFRRCxjQUFjLENBQWQsS0FBb0IsQ0FBcEIsR0FBd0IsSUFBeEIsR0FBK0IsS0FBM0M7O0FBRUE7QUFDQSxRQUFJRSxNQUFNLENBQUNDLFFBQVg7QUFDQSxRQUFJQyxNQUFNLENBQUNELFFBQVg7O0FBRUE7O0FBUm1ELGdDQVN0Q0wsS0FUc0M7QUFBQSxRQVM5Q0osQ0FU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QTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7O0FBb0JsQyxXQUFPYSxRQUFQO0FBQ0g7O1FBRU9DLFMsR0FBQUEsUyIsImZpbGUiOiIyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHtFTVBUWSwgQk9BUkRfU0laRSwgTElNSVRfREVQVEh9IGZyb20gJy4vZ251bS5qcyc7XG5pbXBvcnQge2V2YWx1YXRlU3RhdGV9IGZyb20gJy4vZXN0aW1hdGUuanMnXG5cbi8vIOagueaNruaji+ebmOaDheWGtVxuLy8g6L+U5Zue5Y+v5Lul6JC95a2Q55qE5L2N572uXG5mdW5jdGlvbiBwb3NzaWJsZVBsYWNlcyhjaGVzc0JvYXJkKSB7XG4gICAgbGV0IHBsYWNlcyA9IFtdO1xuICAgIGZvciAobGV0IGkgPSAwOyBpIDwgQk9BUkRfU0laRTsgaSsrKSB7XG4gICAgICAgIGZvciAobGV0IGogPSAwOyBqIDwgQk9BUkRfU0laRTsgaisrKSB7XG4gICAgICAgICAgICBpZiAoY2hlc3NCb2FyZFtpXVtqXSA9PT0gRU1QVFkpIHtcbiAgICAgICAgICAgICAgICBwbGFjZXMucHVzaChbaSxqXSk7XG4gICAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICB9XG4gICAgcmV0dXJuIHBsYWNlcztcbn1cblxuLy8g5qC55o2u5qOL55uY44CB6JC95a2Q5L2N572u44CB5b2T5YmN5rex5bqmXG4vLyDov5Tlm57popzoibLkuLpjb2xvcueahOaji+WtkOWcqOatpOWxgueahOS8sOWAvChtaW7lgLzmiJZtYXjlgLwpXG5mdW5jdGlvbiBtaW5tYXgoY2hlc3NCb2FyZCwgcGxhY2UsIGNvbG9yLCBzZWFyY2hEZXB0aCkge1xuICAgIC8vIOatpOWxguaYr+WPluaegeWkp+WAvOi/mOaYr+aegeWwj+WAvFxuICAgIGxldCBpc01pbiA9IHNlYXJjaERlcHRoICUgMiA9PT0gMSA/IHRydWUgOiBmYWxzZTtcblxuICAgIC8vIOWIneWni+WMllxuICAgIGxldCBtaW4gPSArSW5maW5pdHk7XG4gICAgbGV0IG1heCA9IC1JbmZpbml0eTtcblxuICAgIC8vIOiQveWtkFxuICAgIGxldCBbaSwgal0gPSBwbGFjZTtcbiAgICBpZiAoaXNNaW4pIHsgIC8vIG1pbuWxgu+8jOiQveW3seaWueeahOWtkOWIsOi+vlxuICAgICAgICBjaGVzc0JvYXJkW2ldW2pdID0gY29sb3I7XG4gICAgfSBlbHNlIHsgIC8vIG1heOWxgu+8jOiQveWvueaWueeahOWtkOWIsOi+vlxuICAgICAgICBjaGVzc0JvYXJkW2ldW2pdID0gLWNvbG9yO1xuICAgIH1cblxuICAgIGlmIChzZWFyY2hEZXB0aCA+PSBMSU1JVF9ERVBUSCkgeyAgLy8g5aaC5p6c5Yiw5o6i57Si55qE5Y+25a2Q6IqC54K577yM55u05o6l6L+U5Zue5Lyw5YC8XG4gICAgICAgIC8vIGNvbnNvbGUubG9nKHNlYXJjaERlcHRoLCBwbGFjZSlcbiAgICAgICAgcmV0dXJuIGV2YWx1YXRlU3RhdGUoY2hlc3NCb2FyZCwgY29sb3IpO1xuICAgIH0gZWxzZSB7ICAvLyDlkKbliJnnu6fnu63lkJHkuIvmjqLntKLvvIzkvLDlgLznlLHkuIvlsYLoioLngrnnoa7lrppcbiAgICAgICAgZm9yIChsZXQgcGxhY2Ugb2YgcG9zc2libGVQbGFjZXMoY2hlc3NCb2FyZCkpIHtcbiAgICAgICAgICAgIC8vIGNvbnNvbGUubG9nKHNlYXJjaERlcHRoLCBwbGFjZSlcbiAgICAgICAgICAgIGxldCB3ZWlnaHQgPSBtaW5tYXgoY2hlc3NCb2FyZCwgcGxhY2UsIGNvbG9yLCBzZWFyY2hEZXB0aCsxKTtcblxuICAgICAgICAgICAgLy8g5oGi5aSN54q25oCBXG4gICAgICAgICAgICBsZXQgW2ksIGpdID0gcGxhY2U7XG4gICAgICAgICAgICBjaGVzc0JvYXJkW2ldW2pdID0gRU1QVFk7XG5cbiAgICAgICAgICAgIC8vIOabtOaWsG1pbuS4jm1heFxuICAgICAgICAgICAgaWYgKG1pbiA+IHdlaWdodCkge1xuICAgICAgICAgICAgICAgIG1pbiA9IHdlaWdodDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgICAgIGlmIChtYXggPCB3ZWlnaHQpIHtcbiAgICAgICAgICAgICAgICBtYXggPSB3ZWlnaHQ7XG4gICAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgICAgaWYgKGlzTWluKSB7ICAvLyDlpoLmnpzlvZPliY3lsYLmmK9taW7vvIzov5Tlm55taW5cbiAgICAgICAgICAgIHJldHVybiBtaW47XG4gICAgICAgIH0gZWxzZSB7ICAgICAgLy8g5ZCm5YiZ6L+U5ZuebWF4XG4gICAgICAgICAgICByZXR1cm4gbWF4O1xuICAgICAgICB9XG4gICAgfVxufVxuXG4vLyDmoLnmja7mo4vnm5jjgIHokL3lrZDkvY3nva7jgIHlvZPliY3mt7HluqbvvIxhbHBoYe+8jGJldGFcbi8vIOi/lOWbnuminOiJsuS4umNvbG9y55qE5qOL5a2Q5Zyo5q2k5bGC55qE5Lyw5YC8KG1pbuWAvOaIlm1heOWAvClcbmZ1bmN0aW9uIGFscGhhYmV0YShjaGVzc0JvYXJkLCBwbGFjZSwgYWxwaGEsIGJldGEsIGNvbG9yLCBzZWFyY2hEZXB0aCkge1xuICAgIC8vIOatpOWxguaYr+WPluaegeWkp+WAvOi/mOaYr+aegeWwj+WAvFxuICAgIGxldCBpc01pbiA9IHNlYXJjaERlcHRoICUgMiA9PT0gMSA/IHRydWUgOiBmYWxzZTtcbiAgICBsZXQgaXNNYXggPSAhaXNNaW47XG5cbiAgICAvLyDliJ3lp4vljJZcbiAgICBsZXQgbWluID0gK0luZmluaXR5O1xuICAgIGxldCBtYXggPSAtSW5maW5pdHk7XG5cbiAgICAvLyDokL3lrZBcbiAgICBsZXQgW2ksIGpdID0gcGxhY2U7XG4gICAgaWYgKGlzTWluKSB7ICAvLyBtaW7lsYLvvIzokL3lt7HmlrnnmoTlrZDliLDovr5cbiAgICAgICAgY2hlc3NCb2FyZFtpXVtqXSA9IGNvbG9yO1xuICAgIH0gZWxzZSB7ICAvLyBtYXjlsYLvvIzokL3lr7nmlrnnmoTlrZDliLDovr5cbiAgICAgICAgY2hlc3NCb2FyZFtpXVtqXSA9IC1jb2xvcjtcbiAgICB9XG5cbiAgICAvL29sZENoZXNzQm9hcmQgPSBjb3B5KGNoZXNzQm9hcmQpO1xuXG4gICAgaWYgKHNlYXJjaERlcHRoID49IExJTUlUX0RFUFRIKSB7ICAvLyDliLDmjqLntKLnmoTlj7blrZDoioLngrnvvIznm7TmjqXov5Tlm57kvLDlgLxcbiAgICAgICAgLy8gY29uc29sZS5sb2coc2VhcmNoRGVwdGgsIHBsYWNlKVxuICAgICAgICByZXR1cm4gZXZhbHVhdGVTdGF0ZShjaGVzc0JvYXJkLCBjb2xvcik7XG4gICAgfSBlbHNlIGlmIChpc01heCkgeyAgLy8g5ZCm5YiZ57un57ut5ZCR5LiL5o6i57Si77yM5Lyw5YC855Sx5LiL5bGC6IqC54K556Gu5a6aXG4gICAgICAgIGxldCBtYXggPSAtSW5maW5pdHk7XG4gICAgICAgIGZvciAobGV0IHBsYWNlIG9mIHBvc3NpYmxlUGxhY2VzKGNoZXNzQm9hcmQpKSB7XG4gICAgICAgICAgICAvLyBjb25zb2xlLmxvZyhzZWFyY2hEZXB0aCwgcGxhY2UpXG4gICAgICAgICAgICBsZXQgd2VpZ2h0ID0gYWxwaGFiZXRhKGNoZXNzQm9hcmQsIHBsYWNlLCBtaW4sIG1heCwgY29sb3IsIHNlYXJjaERlcHRoKzEpO1xuXG4gICAgICAgICAgICAvLyDmgaLlpI3mo4vnm5jkuIrkuIDkuKrnirbmgIFcbiAgICAgICAgICAgIGxldCBbaSwgal0gPSBwbGFjZTtcbiAgICAgICAgICAgIGNoZXNzQm9hcmRbaV1bal0gPSBFTVBUWTtcblxuICAgICAgICAgICAgbWF4ID0gbWF4ID4gd2VpZ2h0ID8gbWF4IDogd2VpZ2h0O1xuICAgICAgICAgICAgYWxwaGEgPSBtYXggPiBhbHBoYSA/IG1heCA6IGFscGhhO1xuXG4gICAgICAgICAgICAvLyBiZXRhIGN1dC1vZmZcbiAgICAgICAgICAgIGlmIChiZXRhIDw9IGFscGhhKSB7XG4gICAgICAgICAgICAgICAgYnJlYWs7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgfVxuICAgICAgICByZXR1cm4gbWF4O1xuICAgIH0gZWxzZSB7XG4gICAgICAgIGxldCBtaW4gPSArSW5maW5pdHk7XG4gICAgICAgIGZvciAobGV0IHBsYWNlIG9mIHBvc3NpYmxlUGxhY2VzKGNoZXNzQm9hcmQpKSB7XG4gICAgICAgICAgICAvLyBjb25zb2xlLmxvZyhzZWFyY2hEZXB0aCwgcGxhY2UpXG4gICAgICAgICAgICBsZXQgd2VpZ2h0ID0gYWxwaGFiZXRhKGNoZXNzQm9hcmQsIHBsYWNlLCBtaW4sIG1heCwgY29sb3IsIHNlYXJjaERlcHRoKzEpO1xuXG4gICAgICAgICAgICAvLyDmgaLlpI3nirbmgIFcbiAgICAgICAgICAgIGxldCBbaSwgal0gPSBwbGFjZTtcbiAgICAgICAgICAgIGNoZXNzQm9hcmRbaV1bal0gPSBFTVBUWTtcblxuICAgICAgICAgICAgbWluID0gbWluIDwgd2VpZ2h0ID8gbWluIDogd2VpZ2h0O1xuICAgICAgICAgICAgYmV0YSA9IG1pbiA8IGJldGEgPyBtaW4gOiBiZXRhO1xuXG4gICAgICAgICAgICAvLyBhbHBoYSBjdXQtb2ZmXG4gICAgICAgICAgICBpZiAoYmV0YSA8PSBhbHBoYSkge1xuICAgICAgICAgICAgICAgIGJyZWFrO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgIH1cbiAgICAgICAgcmV0dXJuIG1pbjtcbiAgICB9XG59XG5cbi8vIFttaW4tbWF4XVxuLy8g5qC55o2u5qOL55uY5oOF5Ya1XG4vLyDov5Tlm57kuIvkuIDkuKpjb2xvcuaji+W6lOivpeS4i+eahOS9jee9rlxuZnVuY3Rpb24gbWluTWF4TmV4dFBsYWNlKGNoZXNzQm9hcmQsIGNvbG9yKSB7XG4gICAgLy8g5Zyo5omA5pyJ5Y+v6IO95YC85Lit5Y+W5pyA5aSn55qE5YC8XG4gICAgbGV0IG1heCA9IC1JbmZpbml0eTtcbiAgICBsZXQgbWF4UGxhY2UgPSBudWxsO1xuICAgIGZvciAobGV0IHBsYWNlIG9mIHBvc3NpYmxlUGxhY2VzKGNoZXNzQm9hcmQpKSB7XG4gICAgICAgIGxldCB3ZWlnaHQgPSBtaW5tYXgoY2hlc3NCb2FyZCwgcGxhY2UsIGNvbG9yLCAxKTtcblxuICAgICAgICAvLyDmgaLlpI3mo4vnm5hcbiAgICAgICAgbGV0IFtpLCBqXSA9IHBsYWNlO1xuICAgICAgICBjaGVzc0JvYXJkW2ldW2pdID0gRU1QVFk7XG5cbiAgICAgICAgaWYgKG1heCA8IHdlaWdodCkge1xuICAgICAgICAgICAgbWF4ID0gd2VpZ2h0O1xuICAgICAgICAgICAgbWF4UGxhY2UgPSBwbGFjZTtcbiAgICAgICAgfVxuICAgIH1cbiAgICByZXR1cm4gbWF4UGxhY2U7XG59XG5cbi8vIFthbHBoYS1iZXRhXVxuLy8g5qC55o2u5qOL55uY5oOF5Ya1XG4vLyDov5Tlm57kuIvkuIDkuKpjb2xvcuaji+W6lOivpeS4i+eahOS9jee9rlxuZnVuY3Rpb24gbmV4dFBsYWNlKGNoZXNzQm9hcmQsIGNvbG9yKSB7XG4gICAgLy8g5Zyo5omA5pyJ5Y+v6IO95YC85Lit5Y+W5pyA5aSn55qE5YC8XG4gICAgbGV0IG1heCA9IC1JbmZpbml0eTtcbiAgICBsZXQgbWluID0gK0luZmluaXR5O1xuICAgIGxldCBtYXhQbGFjZSA9IG51bGw7XG4gICAgXG4gICAgLy8g5pCc57Si5L2/Y29sb3Lmo4vkvLDlgLzmnIDlpKfnmoTokL3lrZDkvY3nva5cbiAgICBmb3IgKGxldCBwbGFjZSBvZiBwb3NzaWJsZVBsYWNlcyhjaGVzc0JvYXJkKSkge1xuXG4gICAgICAgIGxldCB3ZWlnaHQgPSBhbHBoYWJldGEoY2hlc3NCb2FyZCwgcGxhY2UsIG1heCwgbWluLCBjb2xvciwgMSk7XG5cbiAgICAgICAgLy8g5oGi5aSNXG4gICAgICAgIGxldCBbaSwgal0gPSBwbGFjZTtcbiAgICAgICAgY2hlc3NCb2FyZFtpXVtqXSA9IEVNUFRZO1xuXG4gICAgICAgIGlmIChtYXggPCB3ZWlnaHQpIHtcbiAgICAgICAgICAgIG1heCA9IHdlaWdodDtcbiAgICAgICAgICAgIG1heFBsYWNlID0gcGxhY2U7XG4gICAgICAgIH1cbiAgICB9XG4gICAgcmV0dXJuIG1heFBsYWNlO1xufVxuXG5leHBvcnQge25leHRQbGFjZX07XG5cblxuXG5cbi8vIFdFQlBBQ0sgRk9PVEVSIC8vXG4vLyAuL3NjcmlwdC9lczIwMTUvYWxwaGFiZXRhLmpzIl0sInNvdXJjZVJvb3QiOiIifQ==");
 
-let drawChessBoard = function() {
-    for (let i=0; i<BOARD_SIZE; i++) {
-        context.moveTo(15 + i*30, 15);   // 起点
-        context.lineTo(15 + i*30, 435);  // 终点
-        context.stroke();
-        context.moveTo(15, 15 + i*30);
-        context.lineTo(435, 15 + i*30);
-        context.stroke();
-    }
-};
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
 
-drawChessBoard();
+"use strict";
+eval("\n\nvar _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i[\"return\"]) _i[\"return\"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError(\"Invalid attempt to destructure non-iterable instance\"); } }; }();\n\nvar _gnum = __webpack_require__(0);\n\nvar _alphabeta = __webpack_require__(2);\n\nvar _estimate = __webpack_require__(1);\n\n// 游戏是否结束\nvar OVER = false;\n\n// 初始化棋盘中落子情况为空\nvar chessBoard = [];\nfor (var i = 0; i < _gnum.BOARD_SIZE; i++) {\n    chessBoard[i] = [];\n    for (var j = 0; j < _gnum.BOARD_SIZE; j++) {\n        chessBoard[i][j] = _gnum.EMPTY;\n    }\n}\n\n// [帮助方法]：展示棋盘\nvar showChessBoard = function showChessBoard() {\n    for (var _i = 0; _i < _gnum.BOARD_SIZE; _i++) {\n        line = [];\n        for (var _j = 0; _j < _gnum.BOARD_SIZE; _j++) {\n            line.push(chessBoard[_j][_i]);\n        }\n        console.log(line.join('|'));\n    }\n};\n\n// 绘制棋盘\nvar chess = document.getElementById('chess');\nvar context = chess.getContext('2d');\ncontext.strokeStyle = \"BFBFBF\";\n\nvar drawChessBoard = function drawChessBoard() {\n    for (var _i2 = 0; _i2 < _gnum.BOARD_SIZE; _i2++) {\n        context.moveTo(15 + _i2 * 30, 15); // 起点\n        context.lineTo(15 + _i2 * 30, 435); // 终点\n        context.stroke();\n        context.moveTo(15, 15 + _i2 * 30);\n        context.lineTo(435, 15 + _i2 * 30);\n        context.stroke();\n    }\n};\n\ndrawChessBoard();\n\n// 在chessBoard[i][j]落color棋子\nvar oneStep = function oneStep(i, j, color) {\n    context.beginPath();\n    context.arc(15 + i * 30, 15 + j * 30, 13, 0, 2 * Math.PI);\n    context.closePath();\n    var gradient = context.createRadialGradient(15 + i * 30 + 2, 15 + j * 30 - 2, 13, 15 + i * 30 + 2, 15 + j * 30 - 2, 0);\n    if (color == _gnum.BLACK) {\n        gradient.addColorStop(0, \"#0A0A0A\");\n        gradient.addColorStop(1, \"#636766\");\n        chessBoard[i][j] = _gnum.BLACK;\n    } else if (color == _gnum.WRITE) {\n        gradient.addColorStop(0, \"#D1D1D1\");\n        gradient.addColorStop(1, \"#F9F9F9\");\n        chessBoard[i][j] = _gnum.WRITE;\n    }\n    context.fillStyle = gradient;\n    context.fill();\n};\n\n// 鼠标绑定落黑子\nchess.onclick = function (e) {\n    if (OVER) {\n        return null;\n    }\n    var x = e.offsetX;\n    var y = e.offsetY;\n    var i = Math.floor(x / 30);\n    var j = Math.floor(y / 30);\n    if (chessBoard[i][j] === _gnum.EMPTY) {\n        oneStep(i, j, _gnum.BLACK);\n        if ((0, _estimate.evaluateState)(chessBoard, _gnum.BLACK) === +Infinity) {\n            OVER = true;\n            alert(\"black win\");\n        } else {\n            var _nextPlace = (0, _alphabeta.nextPlace)(chessBoard, _gnum.WRITE);\n\n            var _nextPlace2 = _slicedToArray(_nextPlace, 2);\n\n            i = _nextPlace2[0];\n            j = _nextPlace2[1];\n\n            console.log(i, j);\n            oneStep(i, j, _gnum.WRITE);\n            if ((0, _estimate.evaluateState)(chessBoard, _gnum.WRITE) === +Infinity) {\n                OVER = true;\n                alert(\"write win\");\n            }\n        }\n    }\n};//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9zY3JpcHQvZXMyMDE1L3VpLmpzP2U0NWYiXSwibmFtZXMiOlsiT1ZFUiIsImNoZXNzQm9hcmQiLCJpIiwiaiIsInNob3dDaGVzc0JvYXJkIiwibGluZSIsInB1c2giLCJjb25zb2xlIiwibG9nIiwiam9pbiIsImNoZXNzIiwiZG9jdW1lbnQiLCJnZXRFbGVtZW50QnlJZCIsImNvbnRleHQiLCJnZXRDb250ZXh0Iiwic3Ryb2tlU3R5bGUiLCJkcmF3Q2hlc3NCb2FyZCIsIm1vdmVUbyIsImxpbmVUbyIsInN0cm9rZSIsIm9uZVN0ZXAiLCJjb2xvciIsImJlZ2luUGF0aCIsImFyYyIsIk1hdGgiLCJQSSIsImNsb3NlUGF0aCIsImdyYWRpZW50IiwiY3JlYXRlUmFkaWFsR3JhZGllbnQiLCJhZGRDb2xvclN0b3AiLCJmaWxsU3R5bGUiLCJmaWxsIiwib25jbGljayIsImUiLCJ4Iiwib2Zmc2V0WCIsInkiLCJvZmZzZXRZIiwiZmxvb3IiLCJJbmZpbml0eSIsImFsZXJ0Il0sIm1hcHBpbmdzIjoiOzs7O0FBQUE7O0FBQ0E7O0FBQ0E7O0FBRUE7QUFDQSxJQUFJQSxPQUFPLEtBQVg7O0FBRUE7QUFDQSxJQUFJQyxhQUFhLEVBQWpCO0FBQ0EsS0FBSyxJQUFJQyxJQUFFLENBQVgsRUFBY0Esb0JBQWQsRUFBNEJBLEdBQTVCLEVBQWlDO0FBQzdCRCxlQUFXQyxDQUFYLElBQWdCLEVBQWhCO0FBQ0EsU0FBSyxJQUFJQyxJQUFFLENBQVgsRUFBY0Esb0JBQWQsRUFBNEJBLEdBQTVCLEVBQWlDO0FBQzdCRixtQkFBV0MsQ0FBWCxFQUFjQyxDQUFkO0FBQ0g7QUFDSjs7QUFFRDtBQUNBLElBQUlDLGlCQUFpQixTQUFqQkEsY0FBaUIsR0FBVTtBQUMzQixTQUFLLElBQUlGLEtBQUUsQ0FBWCxFQUFjQSxxQkFBZCxFQUE0QkEsSUFBNUIsRUFBaUM7QUFDN0JHLGVBQU8sRUFBUDtBQUNBLGFBQUssSUFBSUYsS0FBRSxDQUFYLEVBQWNBLHFCQUFkLEVB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QkFBTyxJQUFQO0FBQ0F3QyxrQkFBTSxXQUFOO0FBQ0gsU0FIRCxNQUdPO0FBQUEsNkJBQ00sMEJBQVV2QyxVQUFWLGNBRE47O0FBQUE7O0FBQ0ZDLGFBREU7QUFDQ0MsYUFERDs7QUFFSEksb0JBQVFDLEdBQVIsQ0FBWU4sQ0FBWixFQUFlQyxDQUFmO0FBQ0FpQixvQkFBUWxCLENBQVIsRUFBV0MsQ0FBWDtBQUNBLGdCQUFJLDZCQUFjRixVQUFkLG1CQUFxQyxDQUFDc0MsUUFBMUMsRUFBb0Q7QUFDaER2Qyx1QkFBTyxJQUFQO0FBQ0F3QyxzQkFBTSxXQUFOO0FBQ0g7QUFDSjtBQUNKO0FBQ0osQ0F2QkQiLCJmaWxlIjoiMy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7RU1QVFksIEJMQUNLLCBXUklURSwgQk9BUkRfU0laRX0gZnJvbSAnLi9nbnVtLmpzJztcbmltcG9ydCB7bmV4dFBsYWNlfSBmcm9tICcuL2FscGhhYmV0YS5qcydcbmltcG9ydCB7ZXZhbHVhdGVTdGF0ZX0gZnJvbSAnLi9lc3RpbWF0ZS5qcydcblxuLy8g5ri45oiP5piv5ZCm57uT5p2fXG5sZXQgT1ZFUiA9IGZhbHNlO1xuXG4vLyDliJ3lp4vljJbmo4vnm5jkuK3okL3lrZDmg4XlhrXkuLrnqbpcbmxldCBjaGVzc0JvYXJkID0gW107XG5mb3IgKGxldCBpPTA7IGk8Qk9BUkRfU0laRTsgaSsrKSB7XG4gICAgY2hlc3NCb2FyZFtpXSA9IFtdO1xuICAgIGZvciAobGV0IGo9MDsgajxCT0FSRF9TSVpFOyBqKyspIHtcbiAgICAgICAgY2hlc3NCb2FyZFtpXVtqXSA9IEVNUFRZO1xuICAgIH1cbn1cblxuLy8gW+W4ruWKqeaWueazlV3vvJrlsZXnpLrmo4vnm5hcbmxldCBzaG93Q2hlc3NCb2FyZCA9IGZ1bmN0aW9uKCl7XG4gICAgZm9yIChsZXQgaT0wOyBpPEJPQVJEX1NJWkU7IGkrKykge1xuICAgICAgICBsaW5lID0gW107XG4gICAgICAgIGZvciAobGV0IGo9MDsgajxCT0FSRF9TSVpFOyBqKyspIHtcbiAgICAgICAgICAgIGxpbmUucHVzaChjaGVzc0JvYXJkW2pdW2ldKTtcbiAgICAgICAgfVxuICAgICAgICBjb25zb2xlLmxvZyhsaW5lLmpvaW4oJ3wnKSk7XG4gICAgfVxufTtcblxuLy8g57uY5Yi25qOL55uYXG5sZXQgY2hlc3MgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY2hlc3MnKTtcbmxldCBjb250ZXh0ID0gY2hlc3MuZ2V0Q29udGV4dCgnMmQnKTtcbmNvbnRleHQuc3Ryb2tlU3R5bGUgPSBcIkJGQkZCRlwiO1xuXG5sZXQgZHJhd0NoZXNzQm9hcmQgPSBmdW5jdGlvbigpIHtcbiAgICBmb3IgKGxldCBpPTA7IGk8Qk9BUkRfU0laRTsgaSsrKSB7XG4gICAgICAgIGNvbnRleHQubW92ZVRvKDE1ICsgaSozMCwgMTUpOyAgIC8vIOi1t+eCuVxuICAgICAgICBjb250ZXh0LmxpbmVUbygxNSArIGkqMzAsIDQzNSk7ICAvLyDnu4jngrlcbiAgICAgICAgY29udGV4dC5zdHJva2UoKTtcbiAgICAgICAgY29udGV4dC5tb3ZlVG8oMTUsIDE1ICsgaSozMCk7XG4gICAgICAgIGNvbnRleHQubGluZVRvKDQzNSwgMTUgKyBpKjMwKTtcbiAgICAgICAgY29udGV4dC5zdHJva2UoKTtcbiAgICB9XG59O1xuXG5kcmF3Q2hlc3NCb2FyZCgpO1xuXG4vLyDlnKhjaGVzc0JvYXJkW2ldW2pd6JC9Y29sb3Lmo4vlrZBcbmxldCBvbmVTdGVwID0gZnVuY3Rpb24oaSwgaiwgY29sb3IpIHtcbiAgICBjb250ZXh0LmJlZ2luUGF0aCgpO1xuICAgIGNvbnRleHQuYXJjKDE1ICsgaSozMCwgMTUgKyBqKjMwLCAxMywgMCwgMipNYXRoLlBJKTtcbiAgICBjb250ZXh0LmNsb3NlUGF0aCgpO1xuICAgIGxldCBncmFkaWVudCA9IGNvbnRleHQuY3JlYXRlUmFkaWFsR3JhZGllbnQoMTUgKyBpKjMwICsgMiwgMTUgKyBqKjMwIC0yLCAxMyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDE1ICsgaSozMCArIDIsIDE1ICsgaiozMCAtMiwgMCk7XG4gICAgaWYgKGNvbG9yID09IEJMQUNLKSB7XG4gICAgICAgIGdyYWRpZW50LmFkZENvbG9yU3RvcCgwLCBcIiMwQTBBMEFcIik7XG4gICAgICAgIGdyYWRpZW50LmFkZENvbG9yU3RvcCgxLCBcIiM2MzY3NjZcIik7XG4gICAgICAgIGNoZXNzQm9hcmRbaV1bal0gPSBCTEFDSztcbiAgICB9IGVsc2UgaWYgKGNvbG9yID09IFdSSVRFKSB7XG4gICAgICAgIGdyYWRpZW50LmFkZENvbG9yU3RvcCgwLCBcIiNEMUQxRDFcIik7XG4gICAgICAgIGdyYWRpZW50LmFkZENvbG9yU3RvcCgxLCBcIiNGOUY5RjlcIik7XG4gICAgICAgIGNoZXNzQm9hcmRbaV1bal0gPSBXUklURTtcbiAgICB9XG4gICAgY29udGV4dC5maWxsU3R5bGUgPSBncmFkaWVudDtcbiAgICBjb250ZXh0LmZpbGwoKTtcbn07XG5cbi8vIOm8oOagh+e7keWumuiQvem7keWtkFxuY2hlc3Mub25jbGljayA9IGZ1bmN0aW9uKGUpIHtcbiAgICBpZiAoT1ZFUikge1xuICAgICAgICByZXR1cm4gbnVsbDtcbiAgICB9XG4gICAgbGV0IHggPSBlLm9mZnNldFg7XG4gICAgbGV0IHkgPSBlLm9mZnNldFk7XG4gICAgbGV0IGkgPSBNYXRoLmZsb29yKHggLyAzMCk7XG4gICAgbGV0IGogPSBNYXRoLmZsb29yKHkgLyAzMCk7XG4gICAgaWYgKGNoZXNzQm9hcmRbaV1bal0gPT09IEVNUFRZKSB7XG4gICAgICAgIG9uZVN0ZXAoaSwgaiwgQkxBQ0spO1xuICAgICAgICBpZiAoZXZhbHVhdGVTdGF0ZShjaGVzc0JvYXJkLCBCTEFDSykgPT09ICtJbmZpbml0eSkge1xuICAgICAgICAgICAgT1ZFUiA9IHRydWU7XG4gICAgICAgICAgICBhbGVydChcImJsYWNrIHdpblwiKTtcbiAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICAgIFtpLCBqXSA9IG5leHRQbGFjZShjaGVzc0JvYXJkLCBXUklURSk7XG4gICAgICAgICAgICBjb25zb2xlLmxvZyhpLCBqKTtcbiAgICAgICAgICAgIG9uZVN0ZXAoaSwgaiwgV1JJVEUpO1xuICAgICAgICAgICAgaWYgKGV2YWx1YXRlU3RhdGUoY2hlc3NCb2FyZCwgV1JJVEUpID09PSArSW5maW5pdHkpIHtcbiAgICAgICAgICAgICAgICBPVkVSID0gdHJ1ZTtcbiAgICAgICAgICAgICAgICBhbGVydChcIndyaXRlIHdpblwiKTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgIH1cbn07XG5cblxuXG5cbi8vIFdFQlBBQ0sgRk9PVEVSIC8vXG4vLyAuL3NjcmlwdC9lczIwMTUvdWkuanMiXSwic291cmNlUm9vdCI6IiJ9");
 
-// 进行一步落子
-let oneStep = function(i, j, color) {
-    context.beginPath();
-    context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
-    context.closePath();
-    let gradient = context.createRadialGradient(15 + i*30 + 2, 15 + j*30 -2, 13,
-                                                15 + i*30 + 2, 15 + j*30 -2, 0);
-    if (color == BLACK) {
-        gradient.addColorStop(0, "#0A0A0A");
-        gradient.addColorStop(1, "#636766");
-        chessBoard[i][j] = BLACK;
-    } else if (color == WRITE) {
-        gradient.addColorStop(0, "#D1D1D1");
-        gradient.addColorStop(1, "#F9F9F9");
-        chessBoard[i][j] = WRITE;
-    }
-    context.fillStyle = gradient;
-    context.fill();
-};
-
-let over = false;
-// 鼠标绑定落黑子
-chess.onclick = function(e) {
-    if (over) {
-        return null;
-    }
-    let x = e.offsetX;
-    let y = e.offsetY;
-    let i = Math.floor(x / 30);
-    let j = Math.floor(y / 30);
-    if (chessBoard[i][j] === EMPTY) {
-        oneStep(i, j, BLACK);
-    }
-
-    if (evaluateState(chessBoard, BLACK) === +Infinity) {
-        over = true;
-        alert("black win");
-    }
-    if (!over) {
-        [i, j] = nextPlace(chessBoard, BLACK);
-        console.log(i, j);
-        oneStep(i, j, WRITE);
-    }
-    if (evaluateState(chessBoard, WRITE) === +Infinity) {
-        over = true;
-        alert("write win");
-    }
-};
-
-/*
- * 棋型表示
- * 用一个6位数表示棋型，从高位到低位分别表示
- * 连五，活四，眠四，活三，活二/眠三，活一/眠二, 眠一
- */
-const VALUE = {
-    LIVE_ONE:   100,
-    LIVE_TWO:   10000,
-    LIVE_THREE: 10000000,
-    LIVE_FOUR:  10000000000,
-    LIVE_FIVE:  +Infinity,
-    SLEEP_ONE:   10,
-    SLEEP_TWO:   1000,
-    SLEEP_THREE: 1000000,
-    SLEEP_FOUR:  10000000000,
-    SLEEP_FIVE:  +Infinity,
-    BLOCKED_ONE:   1,
-    BLOCKED_TWO:   10,
-    BLOCKED_THREE: 100,
-    BLOCKED_FOUR:  1000,
-    BLOCKED_FIVE:  +Infinity,
-}
-
-// 根据连字数和封堵数
-// 给出一个评价值
-function getValue(cnt, blk)
-{
-    if (blk === 0) { // 活棋
-        switch (cnt) {
-            case 1: return VALUE.LIVE_ONE;
-            case 2: return VALUE.LIVE_TWO;
-            case 3: return VALUE.LIVE_THREE;
-            case 4: return VALUE.LIVE_FOUR;
-            default: return VALUE.LIVE_FIVE;
-        }
-    } else if (blk === 1) { // 眠棋
-        switch (cnt) {
-            case 1: return VALUE.SLEEP_ONE;
-            case 2: return VALUE.SLEEP_TWO;
-            case 3: return VALUE.SLEEP_THREE;
-            case 4: return VALUE.SLEEP_FOUR;
-            default: return  VALUE.SLEEP_FIVE;
-        }
-    } else { // 死棋
-        switch (cnt) {
-            case 1: return VALUE.BLOCKED_ONE;
-            case 2: return VALUE.BLOCKED_TWO;
-            case 3: return VALUE.BLOCKED_THREE;
-            case 4: return VALUE.BLOCKED_FOUR;
-            default: return  VALUE.BLOCKED_FIVE;
-        }
-    }
-}
-
-// 根据一行棋的情况
-// 给出评值
-function evaluateLine(line, color){
-    let value = 0;   // 评估值
-    let cnt = 0;     // 连子数
-    let blk = 0;     // 封闭数
-
-    const MY = color;   // 己方
-    const OT = -color;  // 对方
-
-    // 从左向右扫描
-    let lineLength = line.length;
-    for (let i = 0; i < lineLength; i++) {
-        if (line[i] === color) {// 找到第一个己方的棋子
-            // 还原计数
-            cnt = 1;
-
-            // 看左侧是否封闭
-            if (i === 0 || line[i-1] === OT) {
-                // 如果棋子在棋盘的边界,或者上一个棋子为他方棋子
-                blk = 1;
-            } else {
-                blk = 0;
-            }
-
-            // 计算连子数
-            for (i = i+1; i < lineLength && line[i] == MY; i++) {
-                cnt++;
-            }
-
-            // 看右侧是否封闭
-            if (line[i] === OT || i === lineLength) {
-                blk++;
-            }
-
-            // 计算评估值
-            value += getValue(cnt, blk);
-        }
-    }
-
-    return value;
-}
-
-// 根据棋盘状况
-// 给出棋子颜色为color的评值
-function evaluateState(chessBoard, color){
-    // 保存四个方向每一行的棋子情况
-    let row = [];
-    let col = [];
-    for (let i=0; i<BOARD_SIZE; i++) {
-        row[i] = [];
-        col[i] = [];
-    }
-
-    let leftSlash = [];
-    let rightSlash = [];
-    for (let i=0; i<BOARD_SIZE*2-1; i++) {
-        leftSlash[i] = [];
-        rightSlash[i] = [];
-    }
-
-    for (let i = 0; i < BOARD_SIZE; ++i){
-        for (let j = 0; j < BOARD_SIZE; ++j){
-            row[i].push(chessBoard[i][j]);
-            col[j].push(chessBoard[i][j]);
-            leftSlash[j-i+14].push(chessBoard[i][j]);
-            rightSlash[i+j].push(chessBoard[i][j]);
-        }
-    }
-
-    // 评值
-    let colorValue = 0;
-    let notColorValue = 0;
-
-    // 累加行状态评估值
-    for (let i=0; i<BOARD_SIZE; i++) {
-        colorValue += evaluateLine(row[i], color);
-        notColorValue += evaluateLine(row[i], -color);
-        colorValue += evaluateLine(col[i], color);
-        notColorValue += evaluateLine(col[i], -color);
-    }
-    for (let i=0; i<BOARD_SIZE*2-1; i++) {
-        colorValue += evaluateLine(leftSlash[i], color);
-        notColorValue += evaluateLine(leftSlash[i], -color);
-        colorValue += evaluateLine(rightSlash[i], color);
-        notColorValue += evaluateLine(rightSlash[i], -color);
-    }
-
-    return colorValue-notColorValue;
-}
-
-// 根据棋盘情况
-// 返回可以落子的位置
-function possiblePlaces(chessBoard) {
-    let places = [];
-    for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
-            if (chessBoard[i][j] === EMPTY) {
-                places.push([i,j]);
-            }
-        }
-    }
-    return places;
-}
-
-// 根据棋盘、落子位置、颜色、深度
-// 返回min或max
-function minmax(chessBoard, place, color, searchDepth) {
-    // 此层是取极大值还是极小值
-    let isMin = searchDepth % 2 === 1 ? true : false;
-
-    // 初始化
-    let min = +Infinity;
-    let max = -Infinity;
-
-    // 落子
-    let [i, j] = place;
-    if (isMin) {  // min层，落己方的子到达
-        chessBoard[i][j] = color;
-    } else {  // max层，落对方的子到达
-        chessBoard[i][j] = -color;
-    }
-
-    if (searchDepth >= LIMIT_DEPTH) {  // 如果到探索的叶子节点，直接返回估值
-        // console.log(searchDepth, place)
-        return evaluateState(chessBoard, color);
-    } else {  // 否则继续向下探索，估值由下层节点确定
-        for (let place of possiblePlaces(chessBoard)) {
-            // console.log(searchDepth, place)
-            weight = minmax(chessBoard, place, color, searchDepth+1);
-
-            // 恢复状态
-            let [i, j] = place;
-            chessBoard[i][j] = EMPTY;
-
-            // 更新min与max
-            if (min > weight) {
-                min = weight;
-            }
-            if (max < weight) {
-                max = weight;
-            }
-        }
-        if (isMin) {  // 如果当前层是min，返回min
-            return min;
-        } else {      // 否则返回max
-            return max;
-        }
-    }
-}
-
-function alphabeta(chessBoard, place, alpha, beta, color, searchDepth) {
-    // 此层是取极大值还是极小值
-    let isMin = searchDepth % 2 === 1 ? true : false;
-    let isMax = !isMin;
-
-    // 初始化
-    let min = +Infinity;
-    let max = -Infinity;
-
-    // 落子
-    let [i, j] = place;
-    if (isMin) {  // min层，落己方的子到达
-        chessBoard[i][j] = color;
-    } else {  // max层，落对方的子到达
-        chessBoard[i][j] = -color;
-    }
-
-    //oldChessBoard = copy(chessBoard);
-
-    if (searchDepth >= LIMIT_DEPTH) {  // 到探索的叶子节点，直接返回估值
-        // console.log(searchDepth, place)
-        return evaluateState(chessBoard, color);
-    } else if (isMax) {  // 否则继续向下探索，估值由下层节点确定
-        let max = -Infinity;
-        for (let place of possiblePlaces(chessBoard)) {
-            // console.log(searchDepth, place)
-            weight = alphabeta(chessBoard, place, min, max, color, searchDepth+1);
-
-            // 恢复状态
-            let [i, j] = place;
-            chessBoard[i][j] = EMPTY;
-
-            max = max > weight ? max : weight;
-            alpha = max > alpha ? max : alpha;
-
-            // beta cut-off
-            if (beta <= alpha) {
-                break;
-            }
-
-        }
-        return max;
-    } else {
-        let min = +Infinity;
-        for (let place of possiblePlaces(chessBoard)) {
-            // console.log(searchDepth, place)
-            weight = alphabeta(chessBoard, place, min, max, color, searchDepth+1);
-
-            // 恢复状态
-            let [i, j] = place;
-            chessBoard[i][j] = EMPTY;
-
-            min = min < weight ? min : weight;
-            beta = min < beta ? min : beta;
-
-            // alpha cut-off
-            if (beta <= alpha) {
-                break;
-            }
-
-        }
-        return min;
-    }
-}
-
-// 根据棋盘情况
-// 返回下一个color棋应该下的位置
-function nextPlace(chessBoard, color) {
-    // 在所有可能值中取最大的值
-    let max = -Infinity;
-    let min = +Infinity;
-    let maxPlace = null;
-    for (let place of possiblePlaces(chessBoard)) {
-
-        weight = alphabeta(chessBoard, place, max, min, color, 1);
-
-        // 恢复
-        let [i, j] = place;
-        chessBoard[i][j] = EMPTY;
-
-        if (max < weight) {
-            max = weight;
-            maxPlace = place;
-        }
-    }
-    return maxPlace;
-}
-
-// 根据棋盘情况
-// 返回下一个color棋应该下的位置
-function minMaxNextPlace(chessBoard, color) {
-    // 在所有可能值中取最大的值
-    let max = -Infinity;
-    let maxPlace = null;
-    for (let place of possiblePlaces(chessBoard)) {
-        weight = minmax(chessBoard, place, color, 1);
-
-        // 恢复棋盘
-        let [i, j] = place;
-        chessBoard[i][j] = EMPTY;
-
-        if (max < weight) {
-            max = weight;
-            maxPlace = place;
-        }
-    }
-    return maxPlace;
-}
-
+/***/ })
+/******/ ]);
