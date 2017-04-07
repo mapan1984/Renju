@@ -1,6 +1,6 @@
 import {EMPTY, BLACK, WRITE, BOARD_SIZE} from './gnum.js';
 import {nextPlace} from './alphabeta.js'
-import {evaluateState} from './estimate.js'
+import {evaluateState, isVictory} from './estimate.js'
 
 // 游戏是否结束
 let OVER = false;
@@ -39,6 +39,16 @@ let drawChessBoard = function() {
         context.lineTo(435, 15 + i*30);
         context.stroke();
     }
+
+    for (let i=3; i<BOARD_SIZE; i+=4) {
+        for (let j=3; j<BOARD_SIZE; j+=4) {
+            console.log(i,j);
+            context.beginPath();
+            context.arc(15 + i*30, 15 + j*30, 5, 0, 2*Math.PI);
+            context.closePath();
+            context.fill();
+        }
+    }
 };
 
 drawChessBoard();
@@ -48,8 +58,8 @@ let oneStep = function(i, j, color) {
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
-    let gradient = context.createRadialGradient(15 + i*30 + 2, 15 + j*30 -2, 13,
-                                                15 + i*30 + 2, 15 + j*30 -2, 0);
+    let gradient = context.createRadialGradient(15 + i*30 + 2, 15 + j*30 - 2, 13,
+                                                15 + i*30 + 2, 15 + j*30 - 2, 0);
     if (color == BLACK) {
         gradient.addColorStop(0, "#0A0A0A");
         gradient.addColorStop(1, "#636766");
@@ -74,14 +84,14 @@ chess.onclick = function(e) {
     let j = Math.floor(y / 30);
     if (chessBoard[i][j] === EMPTY) {
         oneStep(i, j, BLACK);
-        if (evaluateState(chessBoard, BLACK) === +Infinity) {
+        if (isVictory(chessBoard, BLACK)) {
             OVER = true;
             alert("black win");
         } else {
             [i, j] = nextPlace(chessBoard, WRITE);
-            console.log(i, j);
+            // console.log(i, j);
             oneStep(i, j, WRITE);
-            if (evaluateState(chessBoard, WRITE) === +Infinity) {
+            if (isVictory(chessBoard, WRITE)) {
                 OVER = true;
                 alert("write win");
             }

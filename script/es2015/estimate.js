@@ -6,18 +6,24 @@ const VALUE = {
     LIVE_TWO:   500,
     LIVE_THREE: 10000,
     LIVE_FOUR:  1000000,
-    LIVE_FIVE:  +Infinity,
+    LIVE_FIVE:  100000000,
     SLEEP_ONE:   5,
     SLEEP_TWO:   100,
     SLEEP_THREE: 500,
     SLEEP_FOUR:  5000,
-    SLEEP_FIVE:  +Infinity,
+    SLEEP_FIVE:  100000000,
     BLOCKED_ONE:   1,
     BLOCKED_TWO:   10,
     BLOCKED_THREE: 200,
     BLOCKED_FOUR:  500,
-    BLOCKED_FIVE:  +Infinity,
+    BLOCKED_FIVE:  100000000,
 };
+
+// 保存四个方向每一行的棋子情况
+let row = [];
+let col = [];
+let leftSlash = [];
+let rightSlash = [];
 
 // 根据连子数和封堵数
 // 给出一个评价值
@@ -95,21 +101,17 @@ function evaluateLine(line, color){
 // 根据棋盘chessBoard状况
 // 给出棋子颜色为color在chessBoard的评值
 function evaluateState(chessBoard, color){
-    // 保存四个方向每一行的棋子情况
-    let row = [];
-    let col = [];
+    // 初始化(重置)行数组
     for (let i=0; i<BOARD_SIZE; i++) {
         row[i] = [];
         col[i] = [];
     }
-    let leftSlash = [];
-    let rightSlash = [];
     for (let i=0; i<BOARD_SIZE*2-1; i++) {
         leftSlash[i] = [];
         rightSlash[i] = [];
     }
 
-    // 存储chessBoard四个方向的棋子
+    // 将chessBoard中的棋子分四个方向存储为单行值
     for (let i = 0; i < BOARD_SIZE; ++i){
         for (let j = 0; j < BOARD_SIZE; ++j){
             row[i].push(chessBoard[i][j]);
@@ -139,5 +141,76 @@ function evaluateState(chessBoard, color){
     return colorValue-1.1*notColorValue;
 }
 
-export {evaluateState};
+
+// 判断line中颜色为color的棋是否得胜
+function victoryInLine(line, color) {
+    let cnt = 0;     // 连子数
+
+    const MY = color;   // 己方
+    const OT = -color;  // 对方
+
+    // 从左向右扫描
+    let lineLength = line.length;
+    for (let i = 0; i < lineLength; i++) {
+        if (line[i] === color) {  // 找到第一个己方的棋子
+            // 还原计数
+            cnt = 1;
+
+            // 计算连子数
+            for (i = i+1; i < lineLength && line[i] == MY; i++) {
+                cnt++;
+            }
+
+            if (cnt >= 5) {
+                return true;
+            }
+        }
+    }
+
+    // 如果连子数大于等于5，则不会执行到这
+    return false;
+}
+
+// 判断chessBoard中颜色为color的棋是否得胜
+function isVictory(chessBoard, color) {
+    // 初始化(重置)行数组
+    for (let i=0; i<BOARD_SIZE; i++) {
+        row[i] = [];
+        col[i] = [];
+    }
+    for (let i=0; i<BOARD_SIZE*2-1; i++) {
+        leftSlash[i] = [];
+        rightSlash[i] = [];
+    }
+
+    // 将chessBoard中的棋子分四个方向存储为单行值
+    for (let i = 0; i < BOARD_SIZE; ++i){
+        for (let j = 0; j < BOARD_SIZE; ++j){
+            row[i].push(chessBoard[i][j]);
+            col[j].push(chessBoard[i][j]);
+            leftSlash[j-i+14].push(chessBoard[i][j]);
+            rightSlash[i+j].push(chessBoard[i][j]);
+        }
+    }
+
+    // 逐行判断
+    let i = 0;
+    for (; i<BOARD_SIZE; i++) {
+        if (victoryInLine(row[i], color)
+             || victoryInLine(col[i], color)
+             || victoryInLine(leftSlash[i], color)
+             || victoryInLine(rightSlash[i], color)) {
+            return true;
+        }
+    }
+    for (; i<BOARD_SIZE*2-1; i++) {
+        if (victoryInLine(leftSlash[i], color)
+             || victoryInLine(rightSlash[i], color)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export {evaluateState, isVictory};
 
