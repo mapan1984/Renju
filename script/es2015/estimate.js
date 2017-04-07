@@ -114,8 +114,8 @@ function evaluateState(chessBoard, color){
     // 将chessBoard中的棋子分四个方向存储为单行值
     for (let i = 0; i < BOARD_SIZE; ++i){
         for (let j = 0; j < BOARD_SIZE; ++j){
-            row[i].push(chessBoard[i][j]);
-            col[j].push(chessBoard[i][j]);
+            row[j].push(chessBoard[i][j]);
+            col[i].push(chessBoard[i][j]);
             leftSlash[j-i+14].push(chessBoard[i][j]);
             rightSlash[i+j].push(chessBoard[i][j]);
         }
@@ -141,75 +141,37 @@ function evaluateState(chessBoard, color){
     return colorValue-1.1*notColorValue;
 }
 
-
-// 判断line中颜色为color的棋是否得胜
-function victoryInLine(line, color) {
-    let cnt = 0;     // 连子数
-
-    const MY = color;   // 己方
-    const OT = -color;  // 对方
-
-    // 从左向右扫描
-    let lineLength = line.length;
-    for (let i = 0; i < lineLength; i++) {
-        if (line[i] === color) {  // 找到第一个己方的棋子
-            // 还原计数
-            cnt = 1;
-
-            // 计算连子数
-            for (i = i+1; i < lineLength && line[i] == MY; i++) {
-                cnt++;
-            }
-
-            if (cnt >= 5) {
-                return true;
-            }
-        }
+// 返回连子数
+function victoryInLine(chessBoard, place, color, cx, cy) {
+    let cnt = 1;
+    let [i, j] = place;
+    let [x, y] = [i+cx, j+cy];
+    for (; chessBoard[x][y] === color; x+=cx, y+=cy) {
+        cnt++;
     }
-
-    // 如果连子数大于等于5，则不会执行到这
-    return false;
+    [x, y] = [i-cx, j-cy];
+    for (; chessBoard[x][y] === color; x-=cx, y-=cy) {
+        cnt++;
+    }
+    if (cnt >= 5) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
-// 判断chessBoard中颜色为color的棋是否得胜
-function isVictory(chessBoard, color) {
-    // 初始化(重置)行数组
-    for (let i=0; i<BOARD_SIZE; i++) {
-        row[i] = [];
-        col[i] = [];
+// 判断chessBoard中位置在place位置的color棋是否取得胜利
+function isVictory(chessBoard, place, color) {
+    // 四个方向的连子数，初始为1
+    let row = victoryInLine(chessBoard, place, color, 1, 0);
+    let col = victoryInLine(chessBoard, place, color, 0, 1);
+    let left = victoryInLine(chessBoard, place, color, 1, 1);
+    let right = victoryInLine(chessBoard, place, color, -1, 1);
+    if (row || col || left || right) {
+        return true;
+    } else {
+        return false;
     }
-    for (let i=0; i<BOARD_SIZE*2-1; i++) {
-        leftSlash[i] = [];
-        rightSlash[i] = [];
-    }
-
-    // 将chessBoard中的棋子分四个方向存储为单行值
-    for (let i = 0; i < BOARD_SIZE; ++i){
-        for (let j = 0; j < BOARD_SIZE; ++j){
-            row[i].push(chessBoard[i][j]);
-            col[j].push(chessBoard[i][j]);
-            leftSlash[j-i+14].push(chessBoard[i][j]);
-            rightSlash[i+j].push(chessBoard[i][j]);
-        }
-    }
-
-    // 逐行判断
-    let i = 0;
-    for (; i<BOARD_SIZE; i++) {
-        if (victoryInLine(row[i], color)
-             || victoryInLine(col[i], color)
-             || victoryInLine(leftSlash[i], color)
-             || victoryInLine(rightSlash[i], color)) {
-            return true;
-        }
-    }
-    for (; i<BOARD_SIZE*2-1; i++) {
-        if (victoryInLine(leftSlash[i], color)
-             || victoryInLine(rightSlash[i], color)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 export {evaluateState, isVictory};

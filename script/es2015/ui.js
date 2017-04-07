@@ -84,14 +84,14 @@ chess.onclick = function(e) {
     let j = Math.floor(y / 30);
     if (chessBoard[i][j] === EMPTY) {
         oneStep(i, j, BLACK);
-        if (isVictory(chessBoard, BLACK)) {
+        if (isVictory(chessBoard, [i, j], BLACK)) {
             OVER = true;
             alert("black win");
         } else {
             [i, j] = nextPlace(chessBoard, WRITE);
             // console.log(i, j);
             oneStep(i, j, WRITE);
-            if (isVictory(chessBoard, WRITE)) {
+            if (isVictory(chessBoard, [i, j], WRITE)) {
                 OVER = true;
                 alert("write win");
             }
