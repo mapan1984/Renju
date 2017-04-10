@@ -1,4 +1,4 @@
-import {EMPTY, BLACK, WRITE, BOARD_SIZE, LIMIT_DEPTH, initBorder, resetBorder, setBorder, getBorder, i_min, i_max, j_min, j_max} from './gnum.js';
+import {EMPTY, LIMIT_DEPTH, resetBorder, setBorder, getBorder, i_min, i_max, j_min, j_max} from './gnum.js';
 import {evaluateState} from './estimate.js'
 
 // 根据棋盘情况

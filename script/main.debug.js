@@ -1,8 +1,8 @@
-// Mon Apr 10 13:08:14 CST 2017
+// Mon Apr 10 22:30:50 CST 2017
 // 棋盘每个位置的可选状态
 const EMPTY = 0;
 const BLACK = 1;
-const WRITE = -1;
+const WHITE = -1;
 
 // 棋盘大小为15*15行列
 const BOARD_SIZE = 15;
@@ -368,17 +368,16 @@ function nextPlace(chessBoard, color) {
 
 
 
-// 游戏是否结束
-let OVER = false;
-
-let firstStep = true;
-
 // 初始化棋盘中落子情况为空
 let chessBoard = [];
-for (let i=0; i<BOARD_SIZE; i++) {
-    chessBoard[i] = [];
-    for (let j=0; j<BOARD_SIZE; j++) {
-        chessBoard[i][j] = EMPTY;
+
+// 初始化棋盘
+function initChessBoard(){
+    for (let i=0; i<BOARD_SIZE; i++) {
+        chessBoard[i] = [];
+        for (let j=0; j<BOARD_SIZE; j++) {
+            chessBoard[i][j] = EMPTY;
+        }
     }
 }
 
@@ -423,7 +422,7 @@ drawChessBoard();
 // 在chessBoard[i][j]落color棋子
 let oneStep = function(i, j, color) {
     resetBorder(i, j);
-    console.log(i_min, i_max, j_min, j_max);
+    // console.log(i_min, i_max, j_min, j_max);
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
@@ -433,44 +432,107 @@ let oneStep = function(i, j, color) {
         gradient.addColorStop(0, "#0A0A0A");
         gradient.addColorStop(1, "#636766");
         chessBoard[i][j] = BLACK;
-    } else if (color == WRITE) {
+    } else if (color == WHITE) {
         gradient.addColorStop(0, "#D1D1D1");
         gradient.addColorStop(1, "#F9F9F9");
-        chessBoard[i][j] = WRITE;
+        chessBoard[i][j] = WHITE;
     }
     context.fillStyle = gradient;
     context.fill();
 };
 
-// 鼠标绑定落黑子
-chess.onclick = function(e) {
-    if (OVER) {
-        return null;
-    }
-    let x = e.offsetX;
-    let y = e.offsetY;
-    let i = Math.floor(x / 30);
-    let j = Math.floor(y / 30);
-    if (chessBoard[i][j] === EMPTY) {
-        if (firstStep) {
-            initBorder(i, j);
-            oneStep(i, j, BLACK);
-            firstStep = false;
-        } else {
-            oneStep(i, j, BLACK);
-        }
-        if (isVictory(chessBoard, [i, j], BLACK)) {
-            OVER = true;
-            alert("black win");
-        } else {
-            [i, j] = nextPlace(chessBoard, WRITE);
-            // console.log(i, j);
-            oneStep(i, j, WRITE);
-            if (isVictory(chessBoard, [i, j], WRITE)) {
-                OVER = true;
-                alert("write win");
-            }
-        }
-    }
+// 游戏是否结束
+let OVER = false;
+
+let firstStep = true;
+
+let canStart = true;
+
+let [my, enemy] = [null,null];
+
+let whiteBtn = document.getElementById('white');
+let blackBtn = document.getElementById('black');
+let startBtn = document.getElementById('start');
+
+whiteBtn.onclick = function(){
+    my = WHITE;
+    enemy = BLACK;
+    this.setAttribute('class', 'btn btn-primary');
+    this.setAttribute('disabled', 'disabled');
+    blackBtn.setAttribute('disabled', 'disabled');
 };
 
+blackBtn.onclick = function(){
+    my = BLACK;
+    enemy = WHITE;
+    this.setAttribute('class', 'btn btn-primary');
+    this.setAttribute('disabled', 'disabled');
+    whiteBtn.setAttribute('disabled', 'disabled');
+};
+
+function reStart(){
+    canStart = true;
+    OVER = false;
+    [my, enemy] = [null, null];
+    whiteBtn.removeAttribute('disabled');
+    blackBtn.removeAttribute('disabled');
+    startBtn.removeAttribute('disabled');
+    whiteBtn.setAttribute('class', 'btn btn-default');
+    blackBtn.setAttribute('class', 'btn btn-default');
+    reDrawChess();
+    setBorder(0, BOARD_SIZE, 0, BOARD_SIZE);
+}
+
+function start(){
+    canStart = false;
+    initChessBoard();
+    if (my === WHITE) {
+        initBorder(7, 7);
+        oneStep(7, 7, BLACK);
+        firstStep = false;
+    }
+    chess.onclick = function(e) {
+        if (OVER) {
+            return null;
+        }
+        let i = Math.floor(e.offsetX / 30);
+        let j = Math.floor(e.offsetY / 30);
+        if (chessBoard[i][j] === EMPTY) {
+            if (firstStep) {
+                initBorder(i, j);
+                oneStep(i, j, BLACK);
+                firstStep = false;
+            } else {
+                oneStep(i, j, my);
+            }
+            if (isVictory(chessBoard, [i, j], my)) {
+                OVER = true;
+                alert("my win");
+            } else {
+                [i, j] = nextPlace(chessBoard, enemy);
+                // console.log(i, j);
+                oneStep(i, j, enemy);
+                if (isVictory(chessBoard, [i, j], enemy)) {
+                    OVER = true;
+                    alert("enemy win");
+                }
+            }
+        }
+    };
+}
+
+function reDrawChess(){
+    chess.setAttribute('height', '451px');
+    chess.setAttribute('height', '450px');
+    drawChessBoard();
+}
+
+startBtn.onclick = function(){
+    if (canStart) {
+        this.innerText = "重新开始";
+        start();
+    } else {
+        this.innerText = "开始";
+        reStart();
+    }
+};
