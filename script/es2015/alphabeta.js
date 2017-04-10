@@ -1,18 +1,46 @@
-import {EMPTY, BOARD_SIZE, LIMIT_DEPTH} from './gnum.js';
+import {EMPTY, BLACK, WRITE, BOARD_SIZE, LIMIT_DEPTH, initBorder, resetBorder, setBorder, getBorder, i_min, i_max, j_min, j_max} from './gnum.js';
 import {evaluateState} from './estimate.js'
 
 // 根据棋盘情况
 // 返回可以落子的位置
 function possiblePlaces(chessBoard) {
     let places = [];
-    for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
+    for (let i = i_min; i < i_max; i++) {
+        for (let j = j_min; j < j_max; j++) {
             if (chessBoard[i][j] === EMPTY) {
                 places.push([i,j]);
             }
         }
     }
     return places;
+}
+
+// [包装函数]
+// 1. 处理搜索博弈树落子前旧的边界与棋盘情况
+// 2. 得到落子后的棋局估值
+// 3. 恢复落子前的边界值与棋盘情况
+function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax){
+    // 得到落子位置
+    let [i, j] = place;
+    // 落子
+    if (isMax) {
+        chessBoard[i][j] = color;
+    } else {
+        chessBoard[i][j] = -color;
+    }
+    // 保存旧边界
+    let [old_i_min, old_i_max, old_j_min, old_j_max] = getBorder();
+    // 更新边界
+    resetBorder(i, j);
+
+    let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
+
+    // 恢复棋盘上一个状态
+    chessBoard[i][j] = EMPTY;
+    // 恢复边界
+    setBorder(old_i_min, old_i_max, old_j_min, old_j_max);
+    // 返回值
+    return weight;
 }
 
 // 根据棋盘、落子位置、当前深度，alpha，beta
@@ -31,15 +59,8 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
             let max = -Infinity;
             let maxPlace = null;
             for (let place of possiblePlaces(chessBoard)) {
-                // max层，落已方的子到达下一层
-                let [i, j] = place;
-                chessBoard[i][j] = color;
 
-                // console.log(searchDepth, place)
-                let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
-
-                // 恢复棋盘上一个状态
-                chessBoard[i][j] = EMPTY;
+                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -60,15 +81,8 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
         } else {
             let max = -Infinity;
             for (let place of possiblePlaces(chessBoard)) {
-                // max层，落已方的子到达下一层
-                let [i, j] = place;
-                chessBoard[i][j] = color;
 
-                // console.log(searchDepth, place)
-                let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
-
-                // 恢复棋盘上一个状态
-                chessBoard[i][j] = EMPTY;
+                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -88,15 +102,8 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
     } else {
         let min = +Infinity;
         for (let place of possiblePlaces(chessBoard)) {
-            // min层，落对方的子到达下一层
-            let [i, j] = place;
-            chessBoard[i][j] = -color;
 
-            // console.log(searchDepth, place)
-            let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
-
-            // 恢复状态
-            chessBoard[i][j] = EMPTY;
+            let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
             // min层取最小值
             if (min > weight) {

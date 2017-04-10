@@ -1,9 +1,11 @@
-import {EMPTY, BLACK, WRITE, BOARD_SIZE} from './gnum.js';
+import {EMPTY, BLACK, WRITE, BOARD_SIZE, i_max, i_min, j_max, j_min, initBorder, resetBorder} from './gnum.js';
 import {nextPlace} from './alphabeta.js'
 import {evaluateState, isVictory} from './estimate.js'
 
 // 游戏是否结束
 let OVER = false;
+
+let firstStep = true;
 
 // 初始化棋盘中落子情况为空
 let chessBoard = [];
@@ -42,7 +44,6 @@ let drawChessBoard = function() {
 
     for (let i=3; i<BOARD_SIZE; i+=4) {
         for (let j=3; j<BOARD_SIZE; j+=4) {
-            console.log(i,j);
             context.beginPath();
             context.arc(15 + i*30, 15 + j*30, 5, 0, 2*Math.PI);
             context.closePath();
@@ -55,6 +56,8 @@ drawChessBoard();
 
 // 在chessBoard[i][j]落color棋子
 let oneStep = function(i, j, color) {
+    resetBorder(i, j);
+    console.log(i_min, i_max, j_min, j_max);
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
@@ -83,7 +86,13 @@ chess.onclick = function(e) {
     let i = Math.floor(x / 30);
     let j = Math.floor(y / 30);
     if (chessBoard[i][j] === EMPTY) {
-        oneStep(i, j, BLACK);
+        if (firstStep) {
+            initBorder(i, j);
+            oneStep(i, j, BLACK);
+            firstStep = false;
+        } else {
+            oneStep(i, j, BLACK);
+        }
         if (isVictory(chessBoard, [i, j], BLACK)) {
             OVER = true;
             alert("black win");

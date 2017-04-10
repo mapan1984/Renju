@@ -146,11 +146,11 @@ function victoryInLine(chessBoard, place, color, cx, cy) {
     let cnt = 1;
     let [i, j] = place;
     let [x, y] = [i+cx, j+cy];
-    for (; chessBoard[x][y] === color; x+=cx, y+=cy) {
+    for (; chessBoard[x] && chessBoard[x][y] === color; x+=cx, y+=cy) {
         cnt++;
     }
     [x, y] = [i-cx, j-cy];
-    for (; chessBoard[x][y] === color; x-=cx, y-=cy) {
+    for (; chessBoard[x] && chessBoard[x][y] === color; x-=cx, y-=cy) {
         cnt++;
     }
     if (cnt >= 5) {

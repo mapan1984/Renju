@@ -1,4 +1,4 @@
-// Fri Apr 7 20:53:56 CST 2017
+// Mon Apr 10 13:08:14 CST 2017
 // 棋盘每个位置的可选状态
 const EMPTY = 0;
 const BLACK = 1;
@@ -11,6 +11,51 @@ const GRID_SIZE = 30;
 
 // 博弈树探索深度
 let LIMIT_DEPTH = 2;
+
+// 搜索边界值
+let i_min = 0;
+let j_min = 0;
+let i_max = BOARD_SIZE;
+let j_max = BOARD_SIZE;
+
+// 扩充边界值
+const RANGE = 2;
+
+// 根据第一次落子位置x, y初始搜索边界
+function initBorder(x, y){
+    if (x-RANGE >= 0)
+        i_min = x - RANGE;
+    if (x+RANGE <= 15)
+        i_max = x + RANGE;
+    if (y-RANGE >= 0)
+        j_min = y - RANGE;
+    if (y+RANGE <= 15)
+        j_max = y + RANGE;
+}
+
+// 根据非第一次落子位置x, y重置边界
+function resetBorder(x, y){
+    if (x-RANGE >= 0)
+        i_min = i_min < x-RANGE ? i_min : x-RANGE;
+    if (x+RANGE <= 15)
+        i_max = i_max > x+RANGE ? i_max : x+RANGE;
+    if (y-RANGE >= 0)
+        j_min = j_min < y-RANGE ? j_min : y-RANGE;
+    if (y+RANGE <= 15)
+        j_max = j_max > y+RANGE ? j_max : y+RANGE;
+}
+
+function setBorder(imin, imax, jmin, jmax) {
+    i_min = imin;
+    i_max = imax;
+    j_min = jmin;
+    j_max = jmax;
+}
+
+function getBorder(){
+    return [i_min, i_max, j_min, j_max];
+}
+
 
 
 
@@ -160,11 +205,11 @@ function victoryInLine(chessBoard, place, color, cx, cy) {
     let cnt = 1;
     let [i, j] = place;
     let [x, y] = [i+cx, j+cy];
-    for (; chessBoard[x][y] === color; x+=cx, y+=cy) {
+    for (; chessBoard[x] && chessBoard[x][y] === color; x+=cx, y+=cy) {
         cnt++;
     }
     [x, y] = [i-cx, j-cy];
-    for (; chessBoard[x][y] === color; x-=cx, y-=cy) {
+    for (; chessBoard[x] && chessBoard[x][y] === color; x-=cx, y-=cy) {
         cnt++;
     }
     if (cnt >= 5) {
@@ -194,14 +239,42 @@ function isVictory(chessBoard, place, color) {
 // 返回可以落子的位置
 function possiblePlaces(chessBoard) {
     let places = [];
-    for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
+    for (let i = i_min; i < i_max; i++) {
+        for (let j = j_min; j < j_max; j++) {
             if (chessBoard[i][j] === EMPTY) {
                 places.push([i,j]);
             }
         }
     }
     return places;
+}
+
+// [包装函数]
+// 1. 处理搜索博弈树落子前旧的边界与棋盘情况
+// 2. 得到落子后的棋局估值
+// 3. 恢复落子前的边界值与棋盘情况
+function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax){
+    // 得到落子位置
+    let [i, j] = place;
+    // 落子
+    if (isMax) {
+        chessBoard[i][j] = color;
+    } else {
+        chessBoard[i][j] = -color;
+    }
+    // 保存旧边界
+    let [old_i_min, old_i_max, old_j_min, old_j_max] = getBorder();
+    // 更新边界
+    resetBorder(i, j);
+
+    let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
+
+    // 恢复棋盘上一个状态
+    chessBoard[i][j] = EMPTY;
+    // 恢复边界
+    setBorder(old_i_min, old_i_max, old_j_min, old_j_max);
+    // 返回值
+    return weight;
 }
 
 // 根据棋盘、落子位置、当前深度，alpha，beta
@@ -220,15 +293,8 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
             let max = -Infinity;
             let maxPlace = null;
             for (let place of possiblePlaces(chessBoard)) {
-                // max层，落已方的子到达下一层
-                let [i, j] = place;
-                chessBoard[i][j] = color;
 
-                // console.log(searchDepth, place)
-                let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
-
-                // 恢复棋盘上一个状态
-                chessBoard[i][j] = EMPTY;
+                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -249,15 +315,8 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
         } else {
             let max = -Infinity;
             for (let place of possiblePlaces(chessBoard)) {
-                // max层，落已方的子到达下一层
-                let [i, j] = place;
-                chessBoard[i][j] = color;
 
-                // console.log(searchDepth, place)
-                let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
-
-                // 恢复棋盘上一个状态
-                chessBoard[i][j] = EMPTY;
+                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -277,15 +336,8 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
     } else {
         let min = +Infinity;
         for (let place of possiblePlaces(chessBoard)) {
-            // min层，落对方的子到达下一层
-            let [i, j] = place;
-            chessBoard[i][j] = -color;
 
-            // console.log(searchDepth, place)
-            let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
-
-            // 恢复状态
-            chessBoard[i][j] = EMPTY;
+            let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
             // min层取最小值
             if (min > weight) {
@@ -318,6 +370,8 @@ function nextPlace(chessBoard, color) {
 
 // 游戏是否结束
 let OVER = false;
+
+let firstStep = true;
 
 // 初始化棋盘中落子情况为空
 let chessBoard = [];
@@ -356,7 +410,6 @@ let drawChessBoard = function() {
 
     for (let i=3; i<BOARD_SIZE; i+=4) {
         for (let j=3; j<BOARD_SIZE; j+=4) {
-            console.log(i,j);
             context.beginPath();
             context.arc(15 + i*30, 15 + j*30, 5, 0, 2*Math.PI);
             context.closePath();
@@ -369,6 +422,8 @@ drawChessBoard();
 
 // 在chessBoard[i][j]落color棋子
 let oneStep = function(i, j, color) {
+    resetBorder(i, j);
+    console.log(i_min, i_max, j_min, j_max);
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
@@ -397,7 +452,13 @@ chess.onclick = function(e) {
     let i = Math.floor(x / 30);
     let j = Math.floor(y / 30);
     if (chessBoard[i][j] === EMPTY) {
-        oneStep(i, j, BLACK);
+        if (firstStep) {
+            initBorder(i, j);
+            oneStep(i, j, BLACK);
+            firstStep = false;
+        } else {
+            oneStep(i, j, BLACK);
+        }
         if (isVictory(chessBoard, [i, j], BLACK)) {
             OVER = true;
             alert("black win");
