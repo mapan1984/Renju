@@ -1,4 +1,4 @@
-import {EMPTY, BLACK, WHITE, BOARD_SIZE, initBorder, resetBorder} from './gnum.js';
+import {EMPTY, BLACK, WHITE, BOARD_SIZE, initBorder, setBorder, resetBorder} from './gnum.js';
 import {nextPlace} from './alphabeta.js'
 import {isVictory} from './estimate.js'
 
@@ -6,7 +6,7 @@ import {isVictory} from './estimate.js'
 let chessBoard = [];
 
 // 初始化棋盘
-function initChessBoard(){
+function initChessBoard() {
     for (let i=0; i<BOARD_SIZE; i++) {
         chessBoard[i] = [];
         for (let j=0; j<BOARD_SIZE; j++) {
@@ -16,9 +16,9 @@ function initChessBoard(){
 }
 
 // [帮助方法]：展示棋盘
-let showChessBoard = function(){
+let showChessBoard = function() {
     for (let i=0; i<BOARD_SIZE; i++) {
-        line = [];
+        let line = [];
         for (let j=0; j<BOARD_SIZE; j++) {
             line.push(chessBoard[j][i]);
         }
@@ -29,6 +29,7 @@ let showChessBoard = function(){
 // 绘制棋盘
 let chess = document.getElementById('chess');
 let context = chess.getContext('2d');
+
 context.strokeStyle = "BFBFBF";
 
 let drawChessBoard = function() {
@@ -51,12 +52,18 @@ let drawChessBoard = function() {
     }
 };
 
-drawChessBoard();
+// 重新绘制棋盘
+function reDrawChess() {
+    chess.setAttribute('height', '450px');
+    drawChessBoard();
+}
 
 // 在chessBoard[i][j]落color棋子
 let oneStep = function(i, j, color) {
+    // 重置边界
     resetBorder(i, j);
     // console.log(i_min, i_max, j_min, j_max);
+    
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
@@ -75,79 +82,72 @@ let oneStep = function(i, j, color) {
     context.fill();
 };
 
+
+
 // 游戏是否结束
-let OVER = false;
-
-let firstStep = true;
-
-let canStart = true;
-
+let isOver = false;
+// 是否为第一步
+let isFirstStep = true;
+// 双方棋子颜色
 let [my, enemy] = [null,null];
+// 初始棋盘数据
+initChessBoard();
+// 绘制棋盘
+drawChessBoard();
 
+let selectDiv = document.getElementById('select');
 let whiteBtn = document.getElementById('white');
 let blackBtn = document.getElementById('black');
-let startBtn = document.getElementById('start');
 
-whiteBtn.onclick = function(){
+let resetBtn = document.getElementById('reset');
+resetBtn.style.display='none';
+
+whiteBtn.onclick = function() {
     my = WHITE;
     enemy = BLACK;
-    this.setAttribute('class', 'btn btn-primary');
-    this.setAttribute('disabled', 'disabled');
-    blackBtn.setAttribute('disabled', 'disabled');
+    selectDiv.style.display='none';
+    resetBtn.style.display='block';
+    start();
 };
 
-blackBtn.onclick = function(){
+blackBtn.onclick = function() {
     my = BLACK;
     enemy = WHITE;
-    this.setAttribute('class', 'btn btn-primary');
-    this.setAttribute('disabled', 'disabled');
-    whiteBtn.setAttribute('disabled', 'disabled');
+    selectDiv.style.display='none'
+    resetBtn.style.display='block';
+    start();
 };
 
-function reStart(){
-    canStart = true;
-    OVER = false;
-    [my, enemy] = [null, null];
-    whiteBtn.removeAttribute('disabled');
-    blackBtn.removeAttribute('disabled');
-    startBtn.removeAttribute('disabled');
-    whiteBtn.setAttribute('class', 'btn btn-default');
-    blackBtn.setAttribute('class', 'btn btn-default');
-    reDrawChess();
-    setBorder(0, BOARD_SIZE, 0, BOARD_SIZE);
-}
-
-function start(){
-    canStart = false;
-    initChessBoard();
+function start() {
     if (my === WHITE) {
-        initBorder(7, 7);
         oneStep(7, 7, BLACK);
-        firstStep = false;
+        initBorder(7, 7);
+        isFirstStep = false;
     }
+
     chess.onclick = function(e) {
-        if (OVER) {
+        if (isOver) {
             return null;
         }
         let i = Math.floor(e.offsetX / 30);
         let j = Math.floor(e.offsetY / 30);
         if (chessBoard[i][j] === EMPTY) {
-            if (firstStep) {
-                initBorder(i, j);
+            if (isFirstStep) {
                 oneStep(i, j, BLACK);
-                firstStep = false;
+                initBorder(i, j);
+                isFirstStep = false;
             } else {
                 oneStep(i, j, my);
             }
             if (isVictory(chessBoard, [i, j], my)) {
-                OVER = true;
+                isOver = true;
                 alert("my win");
             } else {
                 [i, j] = nextPlace(chessBoard, enemy);
                 // console.log(i, j);
                 oneStep(i, j, enemy);
                 if (isVictory(chessBoard, [i, j], enemy)) {
-                    OVER = true;
+                    isOver = true;
                     alert("enemy win");
                 }
             }
@@ -155,18 +155,15 @@ function start(){
     };
 }
 
-function reDrawChess(){
-    chess.setAttribute('height', '451px');
-    chess.setAttribute('height', '450px');
-    drawChessBoard();
-}
-
-startBtn.onclick = function(){
-    if (canStart) {
-        this.innerText = "重新开始";
-        start();
-    } else {
-        this.innerText = "开始";
-        reStart();
-    }
+// 重新开始
+resetBtn.onclick = function() {
+    isOver = false;
+    isFirstStep = true;
+    [my, enemy] = [null, null];
+    chess.onclick = null;
+    selectDiv.style.display='block';
+    resetBtn.style.display='none';
+    initChessBoard();
+    setBorder(0, BOARD_SIZE, 0, BOARD_SIZE);
+    reDrawChess();
 };

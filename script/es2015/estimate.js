@@ -27,7 +27,7 @@ let rightSlash = [];
 
 // 根据连子数和封堵数
 // 给出一个评价值
-function getValue(cnt, blk){
+function getValue(cnt, blk) {
     if (blk === 0) { // 活棋
         switch (cnt) {
             case 1: return VALUE.LIVE_ONE;
@@ -57,7 +57,7 @@ function getValue(cnt, blk){
 
 // 根据一行棋的情况
 // 给出color棋在这一行的评值
-function evaluateLine(line, color){
+function evaluateLine(line, color) {
     let value = 0;   // 评估值
     let cnt = 0;     // 连子数
     let blk = 0;     // 封闭数
@@ -100,7 +100,7 @@ function evaluateLine(line, color){
 
 // 根据棋盘chessBoard状况
 // 给出棋子颜色为color在chessBoard的评值
-function evaluateState(chessBoard, color){
+function evaluateState(chessBoard, color) {
     // 初始化(重置)行数组
     for (let i=0; i<BOARD_SIZE; i++) {
         row[i] = [];

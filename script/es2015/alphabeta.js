@@ -19,7 +19,7 @@ function possiblePlaces(chessBoard) {
 // 1. 处理搜索博弈树落子前旧的边界与棋盘情况
 // 2. 得到落子后的棋局估值
 // 3. 恢复落子前的边界值与棋盘情况
-function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax){
+function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax) {
     // 得到落子位置
     let [i, j] = place;
     // 落子

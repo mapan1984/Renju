@@ -4,9 +4,9 @@
   "description": "a renju game based on alpha-beta pruning",
   "main": "./script/es2015/ui.js",
   "scripts": {
-    "start": "webpack",
-    "open": "webpack-dev-server --progress --colors",
-    "build": "./build.sh"
+    "build": "webpack",
+    "start": "webpack-dev-server --progress --colors",
+    "debug": "./build.sh"
   },
   "repository": {
     "type": "git",

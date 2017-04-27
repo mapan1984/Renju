@@ -1,4 +1,4 @@
-// Mon Apr 10 22:30:50 CST 2017
+// 2017年04月13日 19:45:01
 // 棋盘每个位置的可选状态
 const EMPTY = 0;
 const BLACK = 1;
@@ -22,7 +22,7 @@ let j_max = BOARD_SIZE;
 const RANGE = 2;
 
 // 根据第一次落子位置x, y初始搜索边界
-function initBorder(x, y){
+function initBorder(x, y) {
     if (x-RANGE >= 0)
         i_min = x - RANGE;
     if (x+RANGE <= 15)
@@ -34,7 +34,7 @@ function initBorder(x, y){
 }
 
 // 根据非第一次落子位置x, y重置边界
-function resetBorder(x, y){
+function resetBorder(x, y) {
     if (x-RANGE >= 0)
         i_min = i_min < x-RANGE ? i_min : x-RANGE;
     if (x+RANGE <= 15)
@@ -52,7 +52,7 @@ function setBorder(imin, imax, jmin, jmax) {
     j_max = jmax;
 }
 
-function getBorder(){
+function getBorder() {
     return [i_min, i_max, j_min, j_max];
 }
 
@@ -86,7 +86,7 @@ let rightSlash = [];
 
 // 根据连子数和封堵数
 // 给出一个评价值
-function getValue(cnt, blk){
+function getValue(cnt, blk) {
     if (blk === 0) { // 活棋
         switch (cnt) {
             case 1: return VALUE.LIVE_ONE;
@@ -116,7 +116,7 @@ function getValue(cnt, blk){
 
 // 根据一行棋的情况
 // 给出color棋在这一行的评值
-function evaluateLine(line, color){
+function evaluateLine(line, color) {
     let value = 0;   // 评估值
     let cnt = 0;     // 连子数
     let blk = 0;     // 封闭数
@@ -159,7 +159,7 @@ function evaluateLine(line, color){
 
 // 根据棋盘chessBoard状况
 // 给出棋子颜色为color在chessBoard的评值
-function evaluateState(chessBoard, color){
+function evaluateState(chessBoard, color) {
     // 初始化(重置)行数组
     for (let i=0; i<BOARD_SIZE; i++) {
         row[i] = [];
@@ -235,25 +235,59 @@ function isVictory(chessBoard, place, color) {
 
 
 
-// 根据棋盘情况
-// 返回可以落子的位置
-function possiblePlaces(chessBoard) {
+function oneStepWeight(chessBoard, place, color) {
+    let [i, j] = place;
+    chessBoard[i][j] = color;
+    let weight = evaluateState(chessBoard, color);
+    chessBoard[i][j] = EMPTY;
+    return weight;
+}
+
+function compare(place1, place2) {
+    if (place1.weight < place2.weight) {
+        return 1;
+    }
+    if (place1.weight > place2.weight) {
+        return -1;
+    }
+    return 0;
+}
+
+function sortPossiblePlaces(chessBoard, color) {
     let places = [];
     for (let i = i_min; i < i_max; i++) {
         for (let j = j_min; j < j_max; j++) {
             if (chessBoard[i][j] === EMPTY) {
-                places.push([i,j]);
+                let w = oneStepWeight(chessBoard, [i,j], color);
+                places.push({place: [i,j], weight: w});
             }
         }
     }
+    places.sort(compare);
     return places;
 }
+
+// 根据棋盘chessBoard情况
+// 返回按对color棋子有利度从大到小的可以落子的位置
+function possiblePlaces(chessBoard, color) {
+    let places = [];
+    for (let place of sortPossiblePlaces(chessBoard, color)) {
+        // console.log(place.weight);
+        places.push(place.place);
+    }
+    // console.log("--------------------------------")
+    return places;
+}
+
+
 
 // [包装函数]
 // 1. 处理搜索博弈树落子前旧的边界与棋盘情况
 // 2. 得到落子后的棋局估值
 // 3. 恢复落子前的边界值与棋盘情况
-function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax){
+function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth,
+                   place, isMax
+) {
     // 得到落子位置
     let [i, j] = place;
     // 落子
@@ -292,9 +326,10 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
         if (isTop) {
             let max = -Infinity;
             let maxPlace = null;
-            for (let place of possiblePlaces(chessBoard)) {
+            for (let place of possiblePlaces(chessBoard, color)) {
 
-                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
+                let weight = getWeight(alphabeta, chessBoard, alpha, beta,
+                                       color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -314,9 +349,10 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
             return maxPlace;
         } else {
             let max = -Infinity;
-            for (let place of possiblePlaces(chessBoard)) {
+            for (let place of possiblePlaces(chessBoard, color)) {
 
-                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
+                let weight = getWeight(alphabeta, chessBoard, alpha, beta,
+                                       color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -335,9 +371,10 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
         }
     } else {
         let min = +Infinity;
-        for (let place of possiblePlaces(chessBoard)) {
+        for (let place of possiblePlaces(chessBoard, -color)) {
 
-            let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
+            let weight = getWeight(alphabeta, chessBoard, alpha, beta, color,
+                                   searchDepth, place, isMax);
 
             // min层取最小值
             if (min > weight) {
@@ -372,7 +409,7 @@ function nextPlace(chessBoard, color) {
 let chessBoard = [];
 
 // 初始化棋盘
-function initChessBoard(){
+function initChessBoard() {
     for (let i=0; i<BOARD_SIZE; i++) {
         chessBoard[i] = [];
         for (let j=0; j<BOARD_SIZE; j++) {
@@ -382,7 +419,7 @@ function initChessBoard(){
 }
 
 // [帮助方法]：展示棋盘
-let showChessBoard = function(){
+let showChessBoard = function() {
     for (let i=0; i<BOARD_SIZE; i++) {
         line = [];
         for (let j=0; j<BOARD_SIZE; j++) {
@@ -395,6 +432,7 @@ let showChessBoard = function(){
 // 绘制棋盘
 let chess = document.getElementById('chess');
 let context = chess.getContext('2d');
+
 context.strokeStyle = "BFBFBF";
 
 let drawChessBoard = function() {
@@ -417,12 +455,18 @@ let drawChessBoard = function() {
     }
 };
 
-drawChessBoard();
+// 重新绘制棋盘
+function reDrawChess() {
+    chess.setAttribute('height', '450px');
+    drawChessBoard();
+}
 
 // 在chessBoard[i][j]落color棋子
 let oneStep = function(i, j, color) {
+    // 重置边界
     resetBorder(i, j);
     // console.log(i_min, i_max, j_min, j_max);
+    
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
@@ -442,10 +486,12 @@ let oneStep = function(i, j, color) {
 };
 
 // 游戏是否结束
-let OVER = false;
+let isOver = false;
 
-let firstStep = true;
+// 是否为第一步
+let isFirstStep = true;
 
+// 是否可以开始
 let canStart = true;
 
 let [my, enemy] = [null,null];
@@ -454,7 +500,7 @@ let whiteBtn = document.getElementById('white');
 let blackBtn = document.getElementById('black');
 let startBtn = document.getElementById('start');
 
-whiteBtn.onclick = function(){
+whiteBtn.onclick = function() {
     my = WHITE;
     enemy = BLACK;
     this.setAttribute('class', 'btn btn-primary');
@@ -462,7 +508,7 @@ whiteBtn.onclick = function(){
     blackBtn.setAttribute('disabled', 'disabled');
 };
 
-blackBtn.onclick = function(){
+blackBtn.onclick = function() {
     my = BLACK;
     enemy = WHITE;
     this.setAttribute('class', 'btn btn-primary');
@@ -470,50 +516,52 @@ blackBtn.onclick = function(){
     whiteBtn.setAttribute('disabled', 'disabled');
 };
 
-function reStart(){
+function reStart() {
+    isOver = false;
     canStart = true;
-    OVER = false;
     [my, enemy] = [null, null];
     whiteBtn.removeAttribute('disabled');
     blackBtn.removeAttribute('disabled');
     startBtn.removeAttribute('disabled');
     whiteBtn.setAttribute('class', 'btn btn-default');
     blackBtn.setAttribute('class', 'btn btn-default');
-    reDrawChess();
+    initChessBoard();
     setBorder(0, BOARD_SIZE, 0, BOARD_SIZE);
+    reDrawChess();
 }
 
-function start(){
+function start() {
     canStart = false;
-    initChessBoard();
+
     if (my === WHITE) {
         initBorder(7, 7);
         oneStep(7, 7, BLACK);
-        firstStep = false;
+        isFirstStep = false;
     }
+
     chess.onclick = function(e) {
-        if (OVER) {
+        if (isOver) {
             return null;
         }
         let i = Math.floor(e.offsetX / 30);
         let j = Math.floor(e.offsetY / 30);
         if (chessBoard[i][j] === EMPTY) {
-            if (firstStep) {
+            if (isFirstStep) {
                 initBorder(i, j);
                 oneStep(i, j, BLACK);
-                firstStep = false;
+                isFirstStep = false;
             } else {
                 oneStep(i, j, my);
             }
             if (isVictory(chessBoard, [i, j], my)) {
-                OVER = true;
+                isOver = true;
                 alert("my win");
             } else {
                 [i, j] = nextPlace(chessBoard, enemy);
                 // console.log(i, j);
                 oneStep(i, j, enemy);
                 if (isVictory(chessBoard, [i, j], enemy)) {
-                    OVER = true;
+                    isOver = true;
                     alert("enemy win");
                 }
             }
@@ -521,13 +569,10 @@ function start(){
     };
 }
 
-function reDrawChess(){
-    chess.setAttribute('height', '451px');
-    chess.setAttribute('height', '450px');
-    drawChessBoard();
-}
+initChessBoard();
+drawChessBoard();
 
-startBtn.onclick = function(){
+startBtn.onclick = function() {
     if (canStart) {
         this.innerText = "重新开始";
         start();
@@ -536,3 +581,4 @@ startBtn.onclick = function(){
         reStart();
     }
 };
+

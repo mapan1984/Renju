@@ -21,7 +21,7 @@ let j_max = BOARD_SIZE;
 const RANGE = 2;
 
 // 根据第一次落子位置x, y初始搜索边界
-function initBorder(x, y){
+function initBorder(x, y) {
     if (x-RANGE >= 0)
         i_min = x - RANGE;
     if (x+RANGE <= 15)
@@ -33,7 +33,7 @@ function initBorder(x, y){
 }
 
 // 根据非第一次落子位置x, y重置边界
-function resetBorder(x, y){
+function resetBorder(x, y) {
     if (x-RANGE >= 0)
         i_min = i_min < x-RANGE ? i_min : x-RANGE;
     if (x+RANGE <= 15)
@@ -51,7 +51,7 @@ function setBorder(imin, imax, jmin, jmax) {
     j_max = jmax;
 }
 
-function getBorder(){
+function getBorder() {
     return [i_min, i_max, j_min, j_max];
 }
 
