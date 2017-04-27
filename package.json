@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "start": "webpack-dev-server --progress --colors",
-    "debug": "./build.sh"
+    "debug": "git co debug && ./debug.sh"
   },
   "repository": {
     "type": "git",
