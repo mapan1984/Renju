@@ -3,12 +3,12 @@ import {nextPlace} from './alphabeta.js'
 import {isVictory} from './estimate.js'
 
 // 初始化棋盘中落子情况为空
-let chessBoard = [];
+let chessBoard = Array(BOARD_SIZE);
 
 // 初始化棋盘
 function initChessBoard() {
     for (let i=0; i<BOARD_SIZE; i++) {
-        chessBoard[i] = [];
+        chessBoard[i] = Array(BOARD_SIZE);
         for (let j=0; j<BOARD_SIZE; j++) {
             chessBoard[i][j] = EMPTY;
         }
