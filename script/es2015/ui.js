@@ -32,6 +32,7 @@ let context = chess.getContext('2d');
 
 context.strokeStyle = "BFBFBF";
 
+// 棋盘有`15*15`个落子点，cavans大小为`450*450`，棋盘每格为`30*30`。
 let drawChessBoard = function() {
     for (let i=0; i<BOARD_SIZE; i++) {
         context.moveTo(15 + i*30, 15);   // 起点
@@ -63,7 +64,7 @@ let oneStep = function(i, j, color) {
     // 重置边界
     resetBorder(i, j);
     // console.log(i_min, i_max, j_min, j_max);
-    
+
     context.beginPath();
     context.arc(15 + i*30, 15 + j*30, 13, 0, 2*Math.PI);
     context.closePath();
