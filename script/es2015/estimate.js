@@ -1,5 +1,3 @@
-import {BOARD_SIZE} from './gnum.js';
-
 // 不同棋型的价值
 const VALUE = {
     LIVE_ONE:   10,
@@ -25,7 +23,7 @@ let col = [];
 let leftSlash = [];
 let rightSlash = [];
 
-// 根据连子数和封堵数
+// 根据连子数(ctn)和封堵数(blk)
 // 给出一个评价值
 function getValue(cnt, blk) {
     if (blk === 0) { // 活棋
@@ -101,6 +99,8 @@ function evaluateLine(line, color) {
 // 根据棋盘chessBoard状况
 // 给出棋子颜色为color在chessBoard的评值
 function evaluateState(chessBoard, color) {
+    const BOARD_SIZE = chessBoard.boardSize
+
     // 初始化(重置)行数组
     for (let i=0; i<BOARD_SIZE; i++) {
         row[i] = [];
@@ -114,10 +114,10 @@ function evaluateState(chessBoard, color) {
     // 将chessBoard中的棋子分四个方向存储为单行值
     for (let i = 0; i < BOARD_SIZE; ++i){
         for (let j = 0; j < BOARD_SIZE; ++j){
-            row[j].push(chessBoard[i][j]);
-            col[i].push(chessBoard[i][j]);
-            leftSlash[j-i+14].push(chessBoard[i][j]);
-            rightSlash[i+j].push(chessBoard[i][j]);
+            row[j].push(chessBoard.chessBoard[i][j]);
+            col[i].push(chessBoard.chessBoard[i][j]);
+            leftSlash[j-i+14].push(chessBoard.chessBoard[i][j]);
+            rightSlash[i+j].push(chessBoard.chessBoard[i][j]);
         }
     }
 
@@ -141,16 +141,16 @@ function evaluateState(chessBoard, color) {
     return colorValue-1.1*notColorValue;
 }
 
-// 返回连子数
+// 是否在[cx, cy]方向的这一行取得胜利
 function victoryInLine(chessBoard, place, color, cx, cy) {
     let cnt = 1;
     let [i, j] = place;
     let [x, y] = [i+cx, j+cy];
-    for (; chessBoard[x] && chessBoard[x][y] === color; x+=cx, y+=cy) {
+    for (; chessBoard.is(x, y, color); x+=cx, y+=cy) {
         cnt++;
     }
     [x, y] = [i-cx, j-cy];
-    for (; chessBoard[x] && chessBoard[x][y] === color; x-=cx, y-=cy) {
+    for (; chessBoard.is(x, y, color); x-=cx, y-=cy) {
         cnt++;
     }
     if (cnt >= 5) {
@@ -175,4 +175,3 @@ function isVictory(chessBoard, place, color) {
 }
 
 export {evaluateState, isVictory};
-

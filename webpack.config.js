@@ -1,7 +1,7 @@
 module.exports = {             // __dirname 指webpack.config.js所在目录
   devtool: 'eval-source-map',  // 配置生成Source Maps
 
-  entry: __dirname + '/script/es2015/ui.js',  // 唯一打包入口文件
+  entry: __dirname + '/script/es2015/ui-logic.js',  // 唯一打包入口文件
   output: {
     path: __dirname + '/script',  // 打包后文件存放的地方
     filename: 'main.js'                  // 打包后输出文件的文件名

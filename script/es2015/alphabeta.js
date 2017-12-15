@@ -1,50 +1,35 @@
-import {EMPTY, LIMIT_DEPTH, resetBorder, setBorder, getBorder, i_min, i_max, j_min, j_max} from './gnum.js';
-import {evaluateState} from './estimate.js'
-
-// 根据棋盘情况
-// 返回可以落子的位置
-function possiblePlaces(chessBoard) {
-    let places = [];
-    for (let i = i_min; i < i_max; i++) {
-        for (let j = j_min; j < j_max; j++) {
-            if (chessBoard[i][j] === EMPTY) {
-                places.push([i,j]);
-            }
-        }
-    }
-    return places;
-}
+import {EMPTY, LIMIT_DEPTH} from './global-num'
+import {evaluateState} from './estimate'
 
 // [包装函数]
 // 1. 处理搜索博弈树落子前旧的边界与棋盘情况
 // 2. 得到落子后的棋局估值
 // 3. 恢复落子前的边界值与棋盘情况
-function getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax) {
-    // 得到落子位置
-    let [i, j] = place;
-    // 落子
-    if (isMax) {
-        chessBoard[i][j] = color;
-    } else {
-        chessBoard[i][j] = -color;
-    }
+function getWeight(chessBoard, alpha, beta, color, searchDepth, place, isMax) {
     // 保存旧边界
-    let [old_i_min, old_i_max, old_j_min, old_j_max] = getBorder();
-    // 更新边界
-    resetBorder(i, j);
+    let [old_i_min, old_i_max, old_j_min, old_j_max] = chessBoard.getBorder();
+
+    // 落子并更新搜索边界
+    let [i, j] = place;
+    if (isMax) {
+        chessBoard.chessBoard[i][j] = color;
+    } else {
+        chessBoard.chessBoard[i][j] = -color;
+    }
+    chessBoard.resetBorder(i, j);
 
     let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
 
-    // 恢复棋盘上一个状态
-    chessBoard[i][j] = EMPTY;
-    // 恢复边界
-    setBorder(old_i_min, old_i_max, old_j_min, old_j_max);
-    // 返回值
+    // 恢复棋盘上一个状态与边界值
+    chessBoard.chessBoard[i][j] = EMPTY;
+    chessBoard.setBorder(old_i_min, old_i_max, old_j_min, old_j_max);
+
     return weight;
 }
 
-// 根据棋盘、落子位置、当前深度，alpha，beta
-// 返回颜色为color的棋子在此层的估值(min值或max值)
+// 从博弈树的0层进入，递归搜索
+// 其他层返回颜色为color的棋子在此层的估值(min值或max值)
+// 递归结束后回到0层，最终返回最优落子位置
 function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
     // 此层是取极大值还是极小值
     let isMin = searchDepth % 2 === 1 ? true : false;
@@ -58,9 +43,9 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
         if (isTop) {
             let max = -Infinity;
             let maxPlace = null;
-            for (let place of possiblePlaces(chessBoard)) {
+            for (let place of chessBoard.possiblePlaces()) {
 
-                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
+                let weight = getWeight(chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -80,9 +65,9 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
             return maxPlace;
         } else {
             let max = -Infinity;
-            for (let place of possiblePlaces(chessBoard)) {
+            for (let place of chessBoard.possiblePlaces()) {
 
-                let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
+                let weight = getWeight(chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
                 // max层取最大值
                 if (max < weight) {
@@ -101,9 +86,9 @@ function alphabeta(chessBoard, alpha, beta, color, searchDepth) {
         }
     } else {
         let min = +Infinity;
-        for (let place of possiblePlaces(chessBoard)) {
+        for (let place of chessBoard.possiblePlaces()) {
 
-            let weight = getWeight(alphabeta, chessBoard, alpha, beta, color, searchDepth, place, isMax);
+            let weight = getWeight(chessBoard, alpha, beta, color, searchDepth, place, isMax);
 
             // min层取最小值
             if (min > weight) {
@@ -133,4 +118,3 @@ function nextPlace(chessBoard, color) {
 }
 
 export {nextPlace};
-
