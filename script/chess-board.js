@@ -1,5 +1,3 @@
-// import {EMPTY, BLACK, WHITE} from './global-num'
-
 class ChessBoard extends Array {
     constructor(...args) {
         super(...args)
@@ -8,6 +6,11 @@ class ChessBoard extends Array {
         this.boardSize = 15
         // 棋盘格大小为30*30的方格
         this.gridSize = 30
+
+        // 棋子颜色
+        this.empty = 0
+        this.black = 1
+        this.white = -1
 
         // 搜索边界值
         this.i_min = 0
@@ -27,7 +30,7 @@ class ChessBoard extends Array {
         for (let i=0; i<this.boardSize; i++) {
             this[i] = new Array(this.boardSize)
             for (let j=0; j<this.boardSize; j++) {
-                this[i][j] = EMPTY
+                this[i][j] = this.empty
             }
         }
     }
@@ -75,14 +78,14 @@ class ChessBoard extends Array {
                                     15 + i*30 + 2, 15 + j*30 - 2, 13,
                                     15 + i*30 + 2, 15 + j*30 - 2, 0
                                 )
-        if (color == BLACK) {
+        if (color == this.black) {
             gradient.addColorStop(0, "#0A0A0A")
             gradient.addColorStop(1, "#636766")
-            this[i][j] = BLACK
-        } else if (color == WHITE) {
+            this[i][j] = this.black
+        } else if (color == this.white) {
             gradient.addColorStop(0, "#D1D1D1")
             gradient.addColorStop(1, "#F9F9F9")
-            this[i][j] = WHITE
+            this[i][j] = this.white
         }
         this.context.fillStyle = gradient
         this.context.fill()
@@ -132,6 +135,18 @@ class ChessBoard extends Array {
         return this[i] && this[i][j] === color
     }
 
+    isEmpty(i, j) {
+        return this.is(i, j, this.empty)
+    }
+
+    isBlack(i, j) {
+        return this.is(i, j, this.black)
+    }
+
+    isWhite(i, j) {
+        return this.is(i, j, this.white)
+    }
+
     // 根据棋盘情况
     // 返回可以落子的位置
     possiblePlaces() {
@@ -139,7 +154,7 @@ class ChessBoard extends Array {
         let [i_min, i_max, j_min, j_max] = this.getBorder()
         for (let i = i_min; i < i_max; i++) {
             for (let j = j_min; j < j_max; j++) {
-                if (this[i][j] === EMPTY) {
+                if (this.isEmpty(i, j)) {
                     places.push([i,j])
                 }
             }

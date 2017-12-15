@@ -1,4 +1,3 @@
-// import {EMPTY, BLACK, WHITE} from './global-num'
 // import {ChessBoard} from './chess-board'
 // import {isVictory} from './estimate'
 // import {nextPlace} from './alphabeta'
@@ -8,6 +7,10 @@
 let chessBoard = new ChessBoard()
 chessBoard.init()
 chessBoard.draw()
+
+// 棋子颜色
+const BLACK = chessBoard.black
+const WHITE = chessBoard.white
 
 
 // 游戏是否结束
@@ -56,7 +59,7 @@ function start() {
 
         let i = Math.floor(e.offsetX / 30)
         let j = Math.floor(e.offsetY / 30)
-        if (chessBoard.is(i, j, EMPTY)) {
+        if (chessBoard.isEmpty(i, j)) {
             if (isFirstStep) {
                 chessBoard.oneStep(i, j, BLACK)
                 chessBoard.initBorder(i, j)
