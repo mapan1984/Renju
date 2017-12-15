@@ -6,4 +6,4 @@ const WHITE = -1
 // 博弈树探索深度
 let LIMIT_DEPTH = 2
 
-export {EMPTY, BLACK, WHITE, LIMIT_DEPTH}
+// export {EMPTY, BLACK, WHITE, LIMIT_DEPTH}

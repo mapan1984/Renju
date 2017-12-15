@@ -1,10 +1,9 @@
-import {EMPTY, BLACK, WHITE} from './global-num'
-import {ChessBoard} from './chess-board'
-import {isVictory} from './estimate'
-import {nextPlace} from './alphabeta'
+// import {EMPTY, BLACK, WHITE} from './global-num'
+// import {ChessBoard} from './chess-board'
+// import {isVictory} from './estimate'
+// import {nextPlace} from './alphabeta'
 
 
-console.log('here')
 // 棋盘
 let chessBoard = new ChessBoard()
 chessBoard.init()

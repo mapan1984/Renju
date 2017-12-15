@@ -114,10 +114,10 @@ function evaluateState(chessBoard, color) {
     // 将chessBoard中的棋子分四个方向存储为单行值
     for (let i = 0; i < BOARD_SIZE; ++i){
         for (let j = 0; j < BOARD_SIZE; ++j){
-            row[j].push(chessBoard.chessBoard[i][j]);
-            col[i].push(chessBoard.chessBoard[i][j]);
-            leftSlash[j-i+14].push(chessBoard.chessBoard[i][j]);
-            rightSlash[i+j].push(chessBoard.chessBoard[i][j]);
+            row[j].push(chessBoard[i][j]);
+            col[i].push(chessBoard[i][j]);
+            leftSlash[j-i+14].push(chessBoard[i][j]);
+            rightSlash[i+j].push(chessBoard[i][j]);
         }
     }
 
@@ -174,4 +174,4 @@ function isVictory(chessBoard, place, color) {
     }
 }
 
-export {evaluateState, isVictory};
+// export {evaluateState, isVictory};

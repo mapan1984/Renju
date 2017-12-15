@@ -1,7 +1,9 @@
-import {EMPTY, BLACK, WHITE} from './global-num'
+// import {EMPTY, BLACK, WHITE} from './global-num'
 
-class ChessBoard {
-    constructor() {
+class ChessBoard extends Array {
+    constructor(...args) {
+        super(...args)
+
         // 棋盘大小为15*15行列
         this.boardSize = 15
         // 棋盘格大小为30*30的方格
@@ -16,8 +18,6 @@ class ChessBoard {
         // 扩充边界值
         this.range = 2
 
-        this.chessBoard = Array(this.boardSize)
-
         this.chess = document.querySelector('#chess')
         this.context = this.chess.getContext('2d')
     }
@@ -25,15 +25,15 @@ class ChessBoard {
     // 初始棋盘数据
     init() {
         for (let i=0; i<this.boardSize; i++) {
-            this.chessBoard[i] = Array(this.boardSize)
+            this[i] = new Array(this.boardSize)
             for (let j=0; j<this.boardSize; j++) {
-                this.chessBoard[i][j] = EMPTY
+                this[i][j] = EMPTY
             }
         }
     }
 
     show() {
-        console.table(this.chessBoard)
+        console.table(this)
     }
 
     // 绘制棋盘
@@ -78,11 +78,11 @@ class ChessBoard {
         if (color == BLACK) {
             gradient.addColorStop(0, "#0A0A0A")
             gradient.addColorStop(1, "#636766")
-            this.chessBoard[i][j] = BLACK
+            this[i][j] = BLACK
         } else if (color == WHITE) {
             gradient.addColorStop(0, "#D1D1D1")
             gradient.addColorStop(1, "#F9F9F9")
-            this.chessBoard[i][j] = WHITE
+            this[i][j] = WHITE
         }
         this.context.fillStyle = gradient
         this.context.fill()
@@ -129,7 +129,7 @@ class ChessBoard {
     }
 
     is(i, j, color) {
-        return this.chessBoard[i] && this.chessBoard[i][j] === color
+        return this[i] && this[i][j] === color
     }
 
     // 根据棋盘情况
@@ -139,7 +139,7 @@ class ChessBoard {
         let [i_min, i_max, j_min, j_max] = this.getBorder()
         for (let i = i_min; i < i_max; i++) {
             for (let j = j_min; j < j_max; j++) {
-                if (this.chessBoard[i][j] === EMPTY) {
+                if (this[i][j] === EMPTY) {
                     places.push([i,j])
                 }
             }
@@ -148,4 +148,4 @@ class ChessBoard {
     }
 }
 
-export {ChessBoard};
+// export {ChessBoard};
