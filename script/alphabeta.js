@@ -1,5 +1,7 @@
-import {EMPTY, LIMIT_DEPTH} from './global-num'
-import {evaluateState} from './estimate'
+import {evaluateState} from './estimate.js'
+
+// 博弈树探索深度
+let LIMIT_DEPTH = 2
 
 // [包装函数]
 // 1. 处理搜索博弈树落子前旧的边界与棋盘情况
@@ -12,16 +14,16 @@ function getWeight(chessBoard, alpha, beta, color, searchDepth, place, isMax) {
     // 落子并更新搜索边界
     let [i, j] = place;
     if (isMax) {
-        chessBoard.chessBoard[i][j] = color;
+        chessBoard[i][j] = color;
     } else {
-        chessBoard.chessBoard[i][j] = -color;
+        chessBoard[i][j] = -color;
     }
     chessBoard.resetBorder(i, j);
 
     let weight = alphabeta(chessBoard, alpha, beta, color, searchDepth+1);
 
     // 恢复棋盘上一个状态与边界值
-    chessBoard.chessBoard[i][j] = EMPTY;
+    chessBoard[i][j] = chessBoard.empty;
     chessBoard.setBorder(old_i_min, old_i_max, old_j_min, old_j_max);
 
     return weight;
@@ -117,4 +119,4 @@ function nextPlace(chessBoard, color) {
     return alphabeta(chessBoard, alpha, beta, color, 0);
 }
 
-export {nextPlace};
+export default nextPlace;
