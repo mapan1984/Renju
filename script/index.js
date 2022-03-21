@@ -18,7 +18,7 @@ let isOver = false
 // 是否为第一步
 let isFirstStep = true
 // 双方棋子颜色
-let [my, enemy] = [null,null]
+let [my, enemy] = [null, null]
 
 
 let selectDiv = document.getElementById('select')
@@ -46,27 +46,30 @@ blackBtn.onclick = function() {
 }
 
 function start() {
+    // 如果我方是白棋，让黑棋走第一步
     if (my === WHITE) {
         chessBoard.oneStep(7, 7, BLACK)
         chessBoard.initBorder(7, 7)
         isFirstStep = false
     }
 
-    chess.onclick = function(e) {
+    chessBoard.chess.onclick = function(e) {
         if (isOver) {
             return
         }
 
-        let i = Math.floor(e.offsetX / 30)
-        let j = Math.floor(e.offsetY / 30)
+        // 因为有内边距 padding，所以 x - padding 到 x + padding 范围内
+        // 都会落在 x 上，y 坐标同理
+        let i = Math.floor(e.offsetX / chessBoard.gridSize)
+        let j = Math.floor(e.offsetY / chessBoard.gridSize)
+
         if (chessBoard.isEmpty(i, j)) {
             if (isFirstStep) {
-                chessBoard.oneStep(i, j, BLACK)
                 chessBoard.initBorder(i, j)
                 isFirstStep = false
-            } else {
-                chessBoard.oneStep(i, j, my)
             }
+
+            chessBoard.oneStep(i, j, my)
 
             if (isVictory(chessBoard, [i, j], my)) {
                 isOver = true
@@ -89,8 +92,8 @@ function start() {
 resetBtn.onclick = function() {
     isOver = false
     isFirstStep = true
-    [my, enemy] = [null, null]
-    chess.onclick = null
+    ;[my, enemy] = [null, null]
+    chessBoard.chess.onclick = null
     selectDiv.style.display='block'
     resetBtn.style.display='none'
     chessBoard.init()

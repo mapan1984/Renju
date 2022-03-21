@@ -141,37 +141,35 @@ function evaluateState(chessBoard, color) {
     return colorValue-1.1*notColorValue;
 }
 
-// 是否在[cx, cy]方向的这一行取得胜利
+// 在 place 落 color 颜色棋子后，该棋子是否在[cx, cy]方向的这一行取得胜利
 function victoryInLine(chessBoard, place, color, cx, cy) {
     let cnt = 1;
+
     let [i, j] = place;
-    let [x, y] = [i+cx, j+cy];
-    for (; chessBoard.is(x, y, color); x+=cx, y+=cy) {
+
+    let [x, y] = [i + cx, j + cy];
+    for (; chessBoard.is(x, y, color); x += cx, y += cy) {
         cnt++;
     }
-    [x, y] = [i-cx, j-cy];
-    for (; chessBoard.is(x, y, color); x-=cx, y-=cy) {
+
+    [x, y] = [i - cx, j - cy];
+    for (; chessBoard.is(x, y, color); x -= cx, y -= cy) {
         cnt++;
     }
-    if (cnt >= 5) {
-        return true;
-    } else {
-        return false;
-    }
+
+    // 超过 5 颗棋子取得胜利
+    return cnt >= 5
 }
 
-// 判断chessBoard中位置在place位置的color棋是否取得胜利
+// 判断 chessBoard 中 place 位置的 color 颜色棋子是否取得胜利
 function isVictory(chessBoard, place, color) {
-    // 四个方向的连子数，初始为1
-    let row = victoryInLine(chessBoard, place, color, 1, 0);
-    let col = victoryInLine(chessBoard, place, color, 0, 1);
-    let left = victoryInLine(chessBoard, place, color, 1, 1);
-    let right = victoryInLine(chessBoard, place, color, -1, 1);
-    if (row || col || left || right) {
-        return true;
-    } else {
-        return false;
-    }
+    // 依次从四个方向判断是否取得胜利
+    return (
+        victoryInLine(chessBoard, place, color, 1, 0)      // row
+        || victoryInLine(chessBoard, place, color, 0, 1)   // col
+        || victoryInLine(chessBoard, place, color, 1, 1)   // left, x+1,y+1 or x-1,y-1
+        || victoryInLine(chessBoard, place, color, -1, 1)  // right, x+1,y-1 or x-1,y+1
+    )
 }
 
 export {evaluateState, isVictory};
