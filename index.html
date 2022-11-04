@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>五子棋</title>
-  <link href="./style/bootstrap.min.css" rel="stylesheet">
   <link href="./style/main.css" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <div class="row">
-      <div class="col-md-8">
+    <div class="flex">
+      <div>
         <canvas id="chess" width="450px" height="450px"></canvas>
       </div>
-      <div class="col-md-4">
+      <div>
         <div id="select">
           <h4>请选择执棋颜色</h4>
           <button class="btn btn-default" id="white">白棋</button>
@@ -22,8 +21,6 @@
       </div>
     </div>
   </div>
-  <script src="./script/min/jquery.min.js"></script>
-  <script src="./script/min/bootstrap.min.js"></script>
   <script type="module" src="./script/index.js"></script>
 </body>
 </html>
